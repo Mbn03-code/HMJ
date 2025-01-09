@@ -9,7 +9,7 @@ public class Person {
     private String phone;
 
     public Person(String nationalID, String name, String lastName, int age, String gender, String phone) {
-        this.nationalID = nationalID;
+        setNationalID(nationalID);
         this.name = name;
         this.lastName = lastName;
         this.age = age;
@@ -22,7 +22,7 @@ public class Person {
     }
 
     public void setNationalID(String nationalID) {
-        if (nationalID !=null && phone.matches("\\d{10}"))this.phone=phone;
+        if (nationalID !=null && nationalID.matches("\\d{10}"))this.nationalID=nationalID;
         else throw new IllegalArgumentException("national id must be exactly 10 digits.");
     }
 
