@@ -4,8 +4,8 @@ public class Staff extends Person{
     private String position;
     private String salary;
 
-    public Staff(int nationalID, String name, String lastName, int age, String gender, String phone, String address, String position, String salary) {
-        super(nationalID, name, lastName, age, gender, phone, address);
+    public Staff(String nationalID, String name, String lastName, int age, String gender, String phone, String position, String salary) {
+        super(nationalID, name, lastName, age, gender, phone);
         this.position = position;
         this.salary = salary;
     }
@@ -24,5 +24,11 @@ public class Staff extends Person{
 
     public void setSalary(String salary) {
         this.salary = salary;
+    }
+
+    @Override
+    public String getInfo() {
+        return super.getInfo() + ", Position: " + position + ", Salary: " + salary;
+
     }
 }

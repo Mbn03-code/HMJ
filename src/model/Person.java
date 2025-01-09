@@ -1,30 +1,29 @@
 package model;
 
 public class Person {
-    private int nationalID;
+    private String nationalID;
     private String name;
     private String lastName;
     private int age;
     private String gender;
     private String phone;
-    private String address;
 
-    public Person(int nationalID, String name, String lastName, int age, String gender, String phone, String address) {
+    public Person(String nationalID, String name, String lastName, int age, String gender, String phone) {
         this.nationalID = nationalID;
         this.name = name;
         this.lastName = lastName;
         this.age = age;
         setGender(gender);
         setPhone(phone);
-        this.address = address;
     }
 
-    public int getNationalID() {
+    public String getNationalID() {
         return nationalID;
     }
 
-    public void setNationalID(int nationalID) {
-        this.nationalID = nationalID;
+    public void setNationalID(String nationalID) {
+        if (nationalID !=null && phone.matches("\\d{10}"))this.phone=phone;
+        else throw new IllegalArgumentException("national id must be exactly 10 digits.");
     }
 
     public String getName() {
@@ -69,11 +68,7 @@ public class Person {
         else throw new IllegalArgumentException("phone number must be exactly 11 digits.");
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public String getInfo() {
+        return "National ID: " + nationalID + ", Name: " + name + " " + lastName + ", Age: " + age + ", Gender: " + gender + ", Phone: " + phone ;
     }
 }

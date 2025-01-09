@@ -1,40 +1,46 @@
 package model;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 
 public class Patient extends Person{
-    private int roomID;
-    private Date admissionDate;
-    private Date dischargeDate;
+    private Room room;
+    private LocalDate admissionDate;
+    private LocalDate dischargeDate;
 
-    public Patient(int nationalID, String name, String lastName, int age, String gender, String phone, String address, int roomID, Date admissionDate, Date dischargeDate) {
-        super(nationalID, name, lastName, age, gender, phone, address);
-        this.roomID = roomID;
+    public Patient(String nationalID, String name, String lastName, int age, String gender, String phone, Room room, LocalDate admissionDate, LocalDate dischargeDate) {
+        super(nationalID, name, lastName, age, gender, phone);
+        this.room = room;
         this.admissionDate = admissionDate;
         this.dischargeDate = dischargeDate;
     }
 
-    public int getRoomID() {
-        return roomID;
+    public Room getRoom() {
+        return room;
     }
 
-    public void setRoomID(int roomID) {
-        this.roomID = roomID;
+    public void setRoomID(Room roomID) {
+        this.room = room;
     }
 
-    public Date getAdmissionDate() {
+    public LocalDate getAdmissionDate() {
         return admissionDate;
     }
 
-    public void setAdmissionDate(Date admissionDate) {
+    public void setAdmissionDate(LocalDate admissionDate) {
         this.admissionDate = admissionDate;
     }
 
-    public Date getDischargeDate() {
+    public LocalDate getDischargeDate() {
         return dischargeDate;
     }
 
-    public void setDischargeDate(Date dischargeDate) {
+    public void setDischargeDate(LocalDate dischargeDate) {
         this.dischargeDate = dischargeDate;
+    }
+
+    @Override
+    public String getInfo() {
+        return super.getInfo() + ", Room: " + room.getRoomID() + ", Admission Date: " + admissionDate + ", Discharge Date: " + dischargeDate;
     }
 }

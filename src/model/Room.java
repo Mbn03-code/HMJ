@@ -2,13 +2,11 @@ package model;
 
 public class Room {
     private int roomID;
-    private RoomType roomType;
+    private RoomType type;
     private boolean isOccupied;
 
-    public Room(int roomID, RoomType roomType, boolean isOccupied) {
-        this.roomID = roomID;
-        this.roomType = roomType;
-        this.isOccupied = isOccupied;
+    public Room(RoomType roomType) {
+        this.type = roomType;
     }
 
     public int getRoomID() {
@@ -19,12 +17,12 @@ public class Room {
         this.roomID = roomID;
     }
 
-    public String getRoomType() {
-        return roomType.toString();
+    public String getType() {
+        return type.toString();
     }
 
-    public void setRoomType(RoomType roomType) {
-        this.roomType=roomType;
+    public void setType(RoomType type) {
+        this.type = type;
     }
 
     public boolean isOccupied() {
@@ -33,5 +31,9 @@ public class Room {
 
     public void setOccupied(boolean occupied) {
         isOccupied = occupied;
+    }
+
+    public String getInfo(){
+        return "room ID: " +roomID+ " ,room type: "+ type + (isOccupied ? " ,not available" :" available");
     }
 }
