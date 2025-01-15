@@ -1,12 +1,12 @@
 package Database;
 
-import model.Room;
+import MainClasses.Room;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+
 
 public class RoomDB {
 
@@ -53,8 +53,9 @@ public class RoomDB {
         Connection connection = null;
         PreparedStatement findRoomStatement = null;
         PreparedStatement findPatientStatement = null;
-        PreparedStatement updatePatientStatement = null;
+        PreparedStatement findAvailableRoomStatement = null;
         PreparedStatement updateRoomStatement = null;
+        PreparedStatement deletePatientStatement = null;
         PreparedStatement deleteRoomStatement = null;
         ResultSet resultSet = null;
 
@@ -72,62 +73,56 @@ public class RoomDB {
                 String roomType = resultSet.getString("type");
 
                 // 2. پیدا کردن بیمار مربوطه که این اتاق را رزرو کرده است
-                String findPatientSQL = "SELECT nationalID, roomId FROM patients WHERE roomId = ?";
+                String findPatientSQL = "SELECT nationalID FROM patients WHERE roomId = ?";
                 findPatientStatement = connection.prepareStatement(findPatientSQL);
                 findPatientStatement.setInt(1, roomId);
                 resultSet = findPatientStatement.executeQuery();
 
                 if (resultSet.next()) {
+                    // بیمار پیدا شد
                     String nationalID = resultSet.getString("nationalID");
 
                     // 3. پیدا کردن اتاق خالی با همان نوع
                     String findAvailableRoomSQL = "SELECT roomId FROM rooms WHERE type = ? AND isOccupied = false LIMIT 1";
-                    findRoomStatement = connection.prepareStatement(findAvailableRoomSQL);
-                    findRoomStatement.setString(1, roomType);
-                    resultSet = findRoomStatement.executeQuery();
+                    findAvailableRoomStatement = connection.prepareStatement(findAvailableRoomSQL);
+                    findAvailableRoomStatement.setString(1, roomType);
+                    ResultSet availableRoomResult = findAvailableRoomStatement.executeQuery();
 
-                    if (resultSet.next()) {
-                        int availableRoomId = resultSet.getInt("roomId");
+                    if (availableRoomResult.next()) {
+                        int availableRoomId = availableRoomResult.getInt("roomId");
 
-                        // 4. بروزرسانی وضعیت بیمار و تاریخ مرخصی به تاریخ امروز
+                        // بروزرسانی وضعیت اتاق جدید به اشغال
+                        String updateRoomSQL = "UPDATE rooms SET isOccupied = true WHERE roomId = ?";
+                        updateRoomStatement = connection.prepareStatement(updateRoomSQL);
+                        updateRoomStatement.setInt(1, availableRoomId);
+                        updateRoomStatement.executeUpdate();
+
+                        // بروزرسانی بیمار به اتاق جدید
                         String updatePatientSQL = "UPDATE patients SET roomId = ? WHERE nationalID = ?";
-                        updatePatientStatement = connection.prepareStatement(updatePatientSQL);
+                        PreparedStatement updatePatientStatement = connection.prepareStatement(updatePatientSQL);
                         updatePatientStatement.setInt(1, availableRoomId);
                         updatePatientStatement.setString(2, nationalID);
                         updatePatientStatement.executeUpdate();
 
-                        // 5. بروزرسانی وضعیت اتاق اصلی به خالی و اتاق جدید به اشغال
-                        String updateRoomSQL = "UPDATE rooms SET isOccupied = false WHERE roomId = ?";
-                        updateRoomStatement = connection.prepareStatement(updateRoomSQL);
-                        updateRoomStatement.setInt(1, roomId);
-                        updateRoomStatement.executeUpdate();
-
-                        String updateNewRoomSQL = "UPDATE rooms SET isOccupied = true WHERE roomId = ?";
-                        updateRoomStatement = connection.prepareStatement(updateNewRoomSQL);
-                        updateRoomStatement.setInt(1, availableRoomId);
-                        updateRoomStatement.executeUpdate();
-
-                        // 6. حذف اتاق از جدول
-                        String deleteRoomSQL = "DELETE FROM rooms WHERE roomId = ?";
-                        deleteRoomStatement = connection.prepareStatement(deleteRoomSQL);
-                        deleteRoomStatement.setInt(1, roomId);
-                        deleteRoomStatement.executeUpdate();
-
-                        System.out.println("Patient discharged and room reassigned successfully.");
+                        System.out.println("Room reassigned successfully for patient.");
                     } else {
-                        System.out.println("No available rooms of type " + roomType + ".");
-                        // اگر اتاق خالی پیدا نشد، تاریخ مرخصی بیمار به تاریخ امروز تغییر می‌کند
-                        String updatePatientSQL = "UPDATE patients SET dischargeDate = ? WHERE roomId = ?";
-                        updatePatientStatement = connection.prepareStatement(updatePatientSQL);
-                        updatePatientStatement.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
-                        updatePatientStatement.setInt(2, roomId);
-                        updatePatientStatement.executeUpdate();
+                        // اتاق خالی پیدا نشد، بیمار از جدول حذف می‌شود
+                        String deletePatientSQL = "DELETE FROM patients WHERE nationalID = ?";
+                        deletePatientStatement = connection.prepareStatement(deletePatientSQL);
+                        deletePatientStatement.setString(1, nationalID);
+                        deletePatientStatement.executeUpdate();
 
-                        System.out.println("Patient discharged (no available room) and discharge date updated.");
+                        System.out.println("No available room with the same type. Patient discharged and removed from the database.");
                     }
-                } else {
-                    System.out.println("No patient found with the specified room.");
                 }
+
+                // 4. حذف اتاق
+                String deleteRoomSQL = "DELETE FROM rooms WHERE roomId = ?";
+                deleteRoomStatement = connection.prepareStatement(deleteRoomSQL);
+                deleteRoomStatement.setInt(1, roomId);
+                deleteRoomStatement.executeUpdate();
+
+                System.out.println("Room deleted successfully.");
             } else {
                 System.out.println("No room found with the specified roomId.");
             }
@@ -140,8 +135,9 @@ public class RoomDB {
                 if (resultSet != null) resultSet.close();
                 if (findRoomStatement != null) findRoomStatement.close();
                 if (findPatientStatement != null) findPatientStatement.close();
-                if (updatePatientStatement != null) updatePatientStatement.close();
+                if (findAvailableRoomStatement != null) findAvailableRoomStatement.close();
                 if (updateRoomStatement != null) updateRoomStatement.close();
+                if (deletePatientStatement != null) deletePatientStatement.close();
                 if (deleteRoomStatement != null) deleteRoomStatement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
@@ -149,6 +145,126 @@ public class RoomDB {
             }
         }
     }
-    
+    public static void updateRoomType(int roomId, String newType) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            // اتصال به پایگاه داده
+            connection = DatabaseConnection.getConnection();
+
+            // دستور SQL برای به‌روزرسانی نوع اتاق
+            String sql = "UPDATE rooms SET type = ? WHERE roomId = ?";
+
+            // آماده‌سازی statement
+            statement = connection.prepareStatement(sql);
+
+            // مقداردهی به پارامترهای دستور
+            statement.setString(1, newType); // نوع جدید
+            statement.setInt(2, roomId);    // شناسه اتاق
+
+            // اجرای دستور
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Room type updated successfully.");
+            } else {
+                System.out.println("No room found with the specified roomId.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // بستن منابع
+            try {
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public static void readRooms() {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            // اتصال به پایگاه داده
+            connection = DatabaseConnection.getConnection();
+
+            // کوئری SQL برای خواندن تمامی اتاق‌ها
+            String sql = "SELECT roomId, type, isOccupied FROM rooms";
+            statement = connection.prepareStatement(sql);
+
+            // اجرای query
+            resultSet = statement.executeQuery();
+
+            // بررسی نتایج
+            System.out.println("Rooms in the database:");
+            System.out.println("-------------------------------------------------------------");
+            while (resultSet.next()) {
+                int roomId = resultSet.getInt("roomId");
+                String type = resultSet.getString("type");
+                boolean isOccupied = resultSet.getBoolean("isOccupied");
+
+                System.out.printf("Room ID: %d, Type: %s, Occupied: %s%n",
+                        roomId, type, isOccupied ? "Yes" : "No");
+            }
+            System.out.println("-------------------------------------------------------------");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // بستن منابع
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public static void readAvailableRooms() {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            // اتصال به پایگاه داده
+            connection = DatabaseConnection.getConnection();
+
+            // کوئری برای دریافت اتاق‌های خالی
+            String sql = "SELECT roomId, type FROM rooms WHERE isOccupied = false";
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            // نمایش اتاق‌های خالی
+            System.out.println("Available Rooms:");
+            boolean found = false;
+            while (resultSet.next()) {
+                int roomId = resultSet.getInt("roomId");
+                String type = resultSet.getString("type");
+                System.out.println("Room ID: " + roomId + ", Type: " + type);
+                found = true;
+            }
+
+            if (!found) {
+                System.out.println("No available rooms found.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // بستن منابع
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

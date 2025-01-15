@@ -1,11 +1,12 @@
 package Database;
 
-import model.*;
+import MainClasses.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class PatientDB {
 
@@ -130,16 +131,183 @@ public class PatientDB {
             }
         }
     }
-    public void updatePatients(){
+    public static void updatePatientDetails(String nationalID, String name, String lastName, Integer age, String gender, String phone) {
+        Connection connection = null;
+        PreparedStatement statement = null;
 
+        try {
+            // اتصال به پایگاه داده
+            connection = DatabaseConnection.getConnection();
+
+            // ساخت دستور SQL پویا برای به‌روزرسانی فیلدهای مشخص
+            StringBuilder sql = new StringBuilder("UPDATE patients SET ");
+            boolean isFirst = true;
+
+            if (name != null) {
+                sql.append("name = ?");
+                isFirst = false;
+            }
+            if (lastName != null) {
+                if (!isFirst) sql.append(", ");
+                sql.append("lastName = ?");
+                isFirst = false;
+            }
+            if (age != null) {
+                if (!isFirst) sql.append(", ");
+                sql.append("age = ?");
+                isFirst = false;
+            }
+            if (gender != null) {
+                if (!isFirst) sql.append(", ");
+                sql.append("gender = ?");
+                isFirst = false;
+            }
+            if (phone != null) {
+                if (!isFirst) sql.append(", ");
+                sql.append("phone = ?");
+                isFirst = false;
+            }
+
+            sql.append(" WHERE nationalID = ?");
+
+            // آماده‌سازی statement
+            statement = connection.prepareStatement(sql.toString());
+
+            // مقداردهی به پارامترها
+            int paramIndex = 1;
+            if (name != null) statement.setString(paramIndex++, name);
+            if (lastName != null) statement.setString(paramIndex++, lastName);
+            if (age != null) statement.setInt(paramIndex++, age);
+            if (gender != null) statement.setString(paramIndex++, gender);
+            if (phone != null) statement.setString(paramIndex++, phone);
+            statement.setString(paramIndex, nationalID);
+
+            // اجرای دستور
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Patient details updated successfully.");
+            } else {
+                System.out.println("No patient found with the specified nationalID.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // بستن منابع
+            try {
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
-    public void readPatients(){
 
+    public static void readPatients() {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            // اتصال به پایگاه داده
+            connection = DatabaseConnection.getConnection();
+
+            // دستور SQL برای خواندن تمام بیماران
+            String sql = "SELECT nationalID, name, lastname, age, gender, phone, roomId, dischargeDate FROM patients";
+
+            // آماده‌سازی statement
+            statement = connection.prepareStatement(sql);
+
+            // اجرای query
+            resultSet = statement.executeQuery();
+
+            // نمایش اطلاعات
+            System.out.println("Patients List:");
+            System.out.println("-------------------------------------------------------------");
+            while (resultSet.next()) {
+                String nationalID = resultSet.getString("nationalID");
+                String name = resultSet.getString("name");
+                String lastname = resultSet.getString("lastname");
+                int age = resultSet.getInt("age");
+                String gender = resultSet.getString("gender");
+                String phone = resultSet.getString("phone");
+                int roomId = resultSet.getInt("roomId");
+                java.sql.Date dischargeDate = resultSet.getDate("dischargeDate");
+
+                System.out.printf("National ID: %s, Name: %s %s, Age: %d, Gender: %s, Phone: %s, Room ID: %d, Discharge Date: %s%n",
+                        nationalID, name, lastname, age, gender, phone, roomId, dischargeDate != null ? dischargeDate.toString() : "N/A");
+            }
+            System.out.println("-------------------------------------------------------------");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // بستن منابع
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
-    public void searchIDPatients(){
+    public static void searchPatientByNationalID(String nationalID) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
 
-    }
-    public void searchNAMEPatients(){
+        try {
+            // بررسی مقدار ورودی
+            if (nationalID == null || nationalID.isEmpty()) {
+                System.out.println("Please provide a valid National ID.");
+                return;
+            }
 
+            // اتصال به پایگاه داده
+            connection = DatabaseConnection.getConnection();
+
+            // کوئری SQL برای جستجوی بیمار بر اساس کد ملی
+            String sql = "SELECT nationalID, name, lastname, age, gender, phone, roomId, dischargeDate FROM patients WHERE nationalID = ?";
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, nationalID);
+
+            // اجرای query
+            resultSet = statement.executeQuery();
+
+            // بررسی نتایج و نمایش اطلاعات
+            if (resultSet.next()) {
+                System.out.println("Patient found:");
+                System.out.println("-------------------------------------------------------------");
+                do {
+                    String foundNationalID = resultSet.getString("nationalID");
+                    String foundName = resultSet.getString("name");
+                    String foundLastname = resultSet.getString("lastname");
+                    int age = resultSet.getInt("age");
+                    String gender = resultSet.getString("gender");
+                    String phone = resultSet.getString("phone");
+                    int roomId = resultSet.getInt("roomId");
+                    java.sql.Date dischargeDate = resultSet.getDate("dischargeDate");
+
+                    System.out.printf("National ID: %s, Name: %s %s, Age: %d, Gender: %s, Phone: %s, Room ID: %d, Discharge Date: %s%n",
+                            foundNationalID, foundName, foundLastname, age, gender, phone, roomId, dischargeDate != null ? dischargeDate.toString() : "N/A");
+                } while (resultSet.next());
+                System.out.println("-------------------------------------------------------------");
+            } else {
+                System.out.println("No patient found with the given National ID.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // بستن منابع
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
