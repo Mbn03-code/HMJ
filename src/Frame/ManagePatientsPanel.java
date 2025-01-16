@@ -274,7 +274,7 @@ public class ManagePatientsPanel {
 
         formPanel.add(new JLabel("National ID:"));
         JTextField nationalIdField = new JTextField();
-        nationalIdField.setPreferredSize(new Dimension(120, 30));
+        nationalIdField.setPreferredSize(new Dimension(120, 25));
         formPanel.add(nationalIdField);
 
         removePatientPanel.add(formPanel, BorderLayout.CENTER);
@@ -309,7 +309,7 @@ public class ManagePatientsPanel {
         backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.setFocusPainted(false);
-        backButton.setPreferredSize(new Dimension(200, 40));
+        backButton.setPreferredSize(new Dimension(120, 40));
 
         backButton.addActionListener(new ActionListener() {
             @Override
@@ -488,7 +488,7 @@ public class ManagePatientsPanel {
 
         formPanel.add(new JLabel("National ID:"));
         JTextField nationalIdField = new JTextField();
-        nationalIdField.setPreferredSize(new Dimension(120, 30));
+        nationalIdField.setPreferredSize(new Dimension(120, 25));
         formPanel.add(nationalIdField);
 
         searchPatientPanel.add(formPanel, BorderLayout.CENTER);

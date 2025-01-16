@@ -56,3 +56,9 @@ Staff details updated successfully.
 Staff update: 1111111111
 phone number must be exactly 11 digit !
 phone number must be exactly 11 digit !
+phone number must be exactly 11 digit !
+phone number must be exactly 11 digit !
+Staff details updated successfully.
+national id must be exactly 10 digits.
+Column 'nationalId' cannot be null
+Staff added successfully.

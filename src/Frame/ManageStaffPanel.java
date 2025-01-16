@@ -42,8 +42,20 @@ public class ManageStaffPanel {
     }
 
     private JPanel createMenuPanel() {
-        JPanel menuPanel = new JPanel();
-        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));  // Using BoxLayout for vertical layout
+        JPanel menuPanel = new JPanel(new BorderLayout());
+        menuPanel.setBackground(new Color(230, 240, 250)); // Light blue background for the panel
+
+        // Title
+        JLabel label = new JLabel("Staff Management Menu", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(new Color(0, 102, 204)); // Dark blue color for the title
+        label.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add padding around the title
+        menuPanel.add(label, BorderLayout.NORTH);
+
+        // Button Panel
+        JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 10, 10));
+        buttonPanel.setBackground(Color.WHITE); // White background for the form
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Padding around the buttons
 
         // Create buttons for staff management
         JButton addStaffButton = new JButton("Add Staff");
@@ -53,26 +65,21 @@ public class ManageStaffPanel {
         JButton searchStaffButton = new JButton("Search Staff by National ID");
         JButton backButton = new JButton("Back to Menu");
 
-        // Styling buttons (Optional, to make them look similar)
-        addStaffButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        removeStaffButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        updateStaffButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        viewStaffButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        searchStaffButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // Styling buttons
+        styleButton(addStaffButton);
+        styleButton(removeStaffButton);
+        styleButton(updateStaffButton);
+        styleButton(viewStaffButton);
+        styleButton(searchStaffButton);
+        styleButton(backButton);
 
-        // Add buttons to the panel with some space between them
-        menuPanel.add(addStaffButton);
-        menuPanel.add(Box.createVerticalStrut(10));  // Add space between buttons
-        menuPanel.add(removeStaffButton);
-        menuPanel.add(Box.createVerticalStrut(10));
-        menuPanel.add(updateStaffButton);
-        menuPanel.add(Box.createVerticalStrut(10));
-        menuPanel.add(viewStaffButton);
-        menuPanel.add(Box.createVerticalStrut(10));
-        menuPanel.add(searchStaffButton);
-        menuPanel.add(Box.createVerticalStrut(10));
-        menuPanel.add(backButton);
+        // Add buttons to the panel
+        buttonPanel.add(addStaffButton);
+        buttonPanel.add(removeStaffButton);
+        buttonPanel.add(updateStaffButton);
+        buttonPanel.add(viewStaffButton);
+        buttonPanel.add(searchStaffButton);
+        buttonPanel.add(backButton);
 
         // Action listeners for each button
         addStaffButton.addActionListener(new ActionListener() {
@@ -117,19 +124,28 @@ public class ManageStaffPanel {
             }
         });
 
+        menuPanel.add(buttonPanel, BorderLayout.CENTER);
+
         return menuPanel;
     }
 
 
+
     private JPanel createAddStaffPanel() {
         JPanel addStaffPanel = new JPanel(new BorderLayout());
+        addStaffPanel.setBackground(new Color(230, 240, 250)); // Light blue background for the panel
 
         // Title
-        JLabel label = new JLabel("Add a New Staff");
+        JLabel label = new JLabel("Add a New Staff", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(new Color(0, 102, 204)); // Dark blue color for the title
+        label.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add padding around the title
         addStaffPanel.add(label, BorderLayout.NORTH);
 
-        // Form Panel with fields
+        // Form Panel
         JPanel formPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+        formPanel.setBackground(Color.WHITE); // White background for the form
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Padding around the form
 
         // Fields for the form
         formPanel.add(new JLabel("National ID:"));
@@ -166,9 +182,25 @@ public class ManageStaffPanel {
 
         addStaffPanel.add(formPanel, BorderLayout.CENTER);
 
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonsPanel.setBackground(new Color(230, 240, 250)); // Same background color as the main panel
+
         // Submit Button
-        JPanel bottomPanel = new JPanel();
         JButton submitButton = new JButton("Add Staff");
+        submitButton.setBackground(new Color(0, 153, 76)); // Green color
+        submitButton.setForeground(Color.WHITE);
+        submitButton.setFont(new Font("Arial", Font.BOLD, 14));
+        submitButton.setFocusPainted(false);
+
+        // Back Button
+        JButton backButton = new JButton("Back to Menu");
+        backButton.setBackground(new Color(204, 0, 0)); // Red color
+        backButton.setForeground(Color.WHITE);
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.setFocusPainted(false);
+
+        // Action Listeners
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -187,73 +219,109 @@ public class ManageStaffPanel {
                 StaffDB.addStaff(staff);
             }
         });
-        bottomPanel.add(submitButton);
 
-        // Back Button to return to menu
-        JButton backButton = new JButton("Back to Menu");
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(cardContainer, "Menu"); // Show the menu card
             }
         });
-        bottomPanel.add(backButton);
 
-        addStaffPanel.add(bottomPanel, BorderLayout.SOUTH);
+        buttonsPanel.add(submitButton);
+        buttonsPanel.add(backButton);
+
+        addStaffPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
         return addStaffPanel;
     }
 
 
+
     private JPanel createRemoveStaffPanel() {
         JPanel removeStaffPanel = new JPanel(new BorderLayout());
+        removeStaffPanel.setBackground(new Color(230, 240, 250)); // Light blue background for the panel
 
-        JLabel label = new JLabel("Remove a Staff");
+        // Title
+        JLabel label = new JLabel("Remove a Staff", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(new Color(0, 102, 204)); // Dark blue color for the title
+        label.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add padding around the title
         removeStaffPanel.add(label, BorderLayout.NORTH);
 
-        JPanel formPanel = new JPanel(new GridLayout(1, 2));
+        // Form Panel
+        JPanel formPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        formPanel.setBackground(Color.WHITE); // White background for the form
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Padding around the form
+
+        // National ID field
         formPanel.add(new JLabel("National ID:"));
         JTextField nationalIdField = new JTextField();
         formPanel.add(nationalIdField);
 
         removeStaffPanel.add(formPanel, BorderLayout.CENTER);
 
-        // Submit button to remove the staff
-        JPanel bottomPanel = new JPanel();
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonsPanel.setBackground(new Color(230, 240, 250)); // Same background color as the main panel
+        buttonsPanel.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
+
+        // Submit Button
         JButton submitButton = new JButton("Remove Staff");
+        submitButton.setBackground(new Color(0, 153, 76)); // Green color
+        submitButton.setForeground(Color.WHITE);
+        submitButton.setFont(new Font("Arial", Font.BOLD, 14));
+        submitButton.setFocusPainted(false);
+        submitButton.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
+
+        // Back Button
+        JButton backButton = new JButton("Back to Menu");
+        backButton.setBackground(new Color(204, 0, 0)); // Red color
+        backButton.setForeground(Color.WHITE);
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.setFocusPainted(false);
+        submitButton.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
+
+        // Action Listeners
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Implement logic to remove the staff based on the National ID
                 String nationalId = nationalIdField.getText();
-                StaffDB.removeStaff(nationalId);
+                StaffDB.removeStaff(nationalId); // Logic to remove the staff
             }
         });
-        bottomPanel.add(submitButton);
 
-        // Back Button to return to menu
-        JButton backButton = new JButton("Back to Menu");
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(cardContainer, "Menu"); // Show the menu card
             }
         });
-        bottomPanel.add(backButton);
 
-        removeStaffPanel.add(bottomPanel, BorderLayout.SOUTH);
+        buttonsPanel.add(submitButton);
+        buttonsPanel.add(backButton);
+
+        removeStaffPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
         return removeStaffPanel;
     }
 
 
+
     private JPanel createUpdateStaffPanel() {
         JPanel updateStaffPanel = new JPanel(new BorderLayout());
+        updateStaffPanel.setBackground(new Color(230, 240, 250)); // Light blue background for the panel
 
         // Title
-        JLabel label = new JLabel("Update Staff Information");
+        JLabel label = new JLabel("Update Staff Information", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(new Color(0, 102, 204)); // Dark blue color for the title
+        label.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add padding around the title
         updateStaffPanel.add(label, BorderLayout.NORTH);
 
-        // Form Panel with fields
+        // Form Panel
         JPanel formPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+        formPanel.setBackground(Color.WHITE); // White background for the form
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Padding around the form
 
         // Fields for the form
         formPanel.add(new JLabel("National ID:"));
@@ -287,15 +355,31 @@ public class ManageStaffPanel {
         formPanel.add(new JLabel("Salary:"));
         JTextField salaryField = new JTextField();
         formPanel.add(salaryField);
+
         updateStaffPanel.add(formPanel, BorderLayout.CENTER);
 
-        // Submit Button to update staff information
-        JPanel bottomPanel = new JPanel();
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonsPanel.setBackground(new Color(230, 240, 250)); // Same background color as the main panel
+
+        // Submit Button
         JButton submitButton = new JButton("Update Staff");
+        submitButton.setBackground(new Color(0, 153, 76)); // Green color
+        submitButton.setForeground(Color.WHITE);
+        submitButton.setFont(new Font("Arial", Font.BOLD, 14));
+        submitButton.setFocusPainted(false);
+
+        // Back Button
+        JButton backButton = new JButton("Back to Menu");
+        backButton.setBackground(new Color(204, 0, 0)); // Red color
+        backButton.setForeground(Color.WHITE);
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.setFocusPainted(false);
+
+        // Action Listeners
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Get input values from the fields
                 String nationalId = nationalIdField.getText();
                 String firstName = firstNameField.getText();
                 String lastName = lastNameField.getText();
@@ -309,44 +393,57 @@ public class ManageStaffPanel {
                 StaffDB.updateStaffDetails(nationalId, firstName, lastName, age, gender, phone, position, salary);
             }
         });
-        bottomPanel.add(submitButton);
 
-        // Back Button to return to menu
-        JButton backButton = new JButton("Back to Menu");
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(cardContainer, "Menu"); // Show the menu card
             }
         });
-        bottomPanel.add(backButton);
 
-        updateStaffPanel.add(bottomPanel, BorderLayout.SOUTH);
+        buttonsPanel.add(submitButton);
+        buttonsPanel.add(backButton);
+
+        updateStaffPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
         return updateStaffPanel;
     }
 
-
     private JPanel createViewStaffPanel() {
         JPanel viewStaffPanel = new JPanel(new BorderLayout());
+        viewStaffPanel.setBackground(new Color(230, 240, 250)); // Light blue background for the panel
 
         // Title
-        JLabel label = new JLabel("View All Staff");
+        JLabel label = new JLabel("View All Staff", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(new Color(0, 102, 204)); // Dark blue color for the title
+        label.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add padding around the title
         viewStaffPanel.add(label, BorderLayout.NORTH);
 
-        // Create a JTable to display the patients' data
-        String[] columns = {"National ID", "First Name", "Last Name", "Age", "Gender", "Phone", "position", "salary"};
+        // Create a JTable to display the staff's data
+        String[] columns = {"National ID", "First Name", "Last Name", "Age", "Gender", "Phone", "Position", "Salary"};
         DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
-        JTable StaffTable = new JTable(tableModel);
+        JTable staffTable = new JTable(tableModel);
 
-        // Load patients' data from the database into the JTable
+        // Load staff data from the database into the JTable
         StaffDB.readAllStaff(tableModel);
 
         // Scroll pane for the table
-        JScrollPane scrollPane = new JScrollPane(StaffTable);
+        JScrollPane scrollPane = new JScrollPane(staffTable);
         viewStaffPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Back Button to return to menu
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonsPanel.setBackground(new Color(230, 240, 250)); // Same background color as the main panel
+
+        // Back Button
         JButton backButton = new JButton("Back to Menu");
+        backButton.setBackground(new Color(204, 0, 0)); // Red color
+        backButton.setForeground(Color.WHITE);
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.setFocusPainted(false);
+
+        // Action Listener for the back button
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -354,92 +451,102 @@ public class ManageStaffPanel {
             }
         });
 
-        // You can add the back button either to the South or in a different place as per your design preference.
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.add(backButton);
-        viewStaffPanel.add(bottomPanel, BorderLayout.SOUTH);
+        buttonsPanel.add(backButton);
+        viewStaffPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
         return viewStaffPanel;
     }
 
-
     private JPanel createSearchStaffPanel() {
         JPanel searchStaffPanel = new JPanel(new BorderLayout());
+        searchStaffPanel.setBackground(new Color(230, 240, 250)); // Light blue background
 
         // Title
-        JLabel label = new JLabel("Search Staff by National ID");
+        JLabel label = new JLabel("Search Staff by National ID", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(new Color(0, 102, 204)); // Dark blue color for title
+        label.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Padding for title
         searchStaffPanel.add(label, BorderLayout.NORTH);
 
-        // Form Panel with fields
-        JPanel formPanel = new JPanel(new GridLayout(1, 2));
+        // Form Panel for National ID input
+        JPanel formPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
         formPanel.add(new JLabel("National ID:"));
         JTextField nationalIdField = new JTextField();
+        nationalIdField.setPreferredSize(new Dimension(120, 30));
         formPanel.add(nationalIdField);
 
         searchStaffPanel.add(formPanel, BorderLayout.CENTER);
 
-        // Result Panel
-        JPanel resultPanel = new JPanel(new GridLayout(9, 2, 10, 10));
-        JLabel firstNameLabel = new JLabel("First Name: ");
-        JLabel lastNameLabel = new JLabel("Last Name: ");
-        JLabel ageLabel = new JLabel("Age: ");
-        JLabel genderLabel = new JLabel("Gender: ");
-        JLabel phoneLabel = new JLabel("Phone: ");
-        JLabel positionLabel = new JLabel("position: ");
-        JLabel salaryLabel = new JLabel("salary: ");
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonsPanel.setBackground(new Color(230, 240, 250)); // Same background color
 
-        resultPanel.add(firstNameLabel);
-        resultPanel.add(lastNameLabel);
-        resultPanel.add(ageLabel);
-        resultPanel.add(genderLabel);
-        resultPanel.add(phoneLabel);
-        resultPanel.add(positionLabel);
-        resultPanel.add(salaryLabel);
+        // Search Button
+        JButton searchButton = new JButton("Search");
+        searchButton.setBackground(new Color(0, 153, 76)); // Green button style
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setFont(new Font("Arial", Font.BOLD, 14));
+        searchButton.setFocusPainted(false);
 
-
-        searchStaffPanel.add(resultPanel, BorderLayout.SOUTH);
-
-        // Search button to fetch patient data by National ID
-        JButton searchButton = new JButton("Search Staff");
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String nationalId = nationalIdField.getText();
-                if (!nationalId.isEmpty()) {
-                    // Call method to search for patient by National ID
-                    Staff staff = StaffDB.searchStaffByNationalId(nationalId);
+                if (nationalId.isEmpty()) {
+                    JOptionPane.showMessageDialog(searchStaffPanel, "Please enter National ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-                    if (staff != null) {
-                        // Update result labels with patient data
-                        firstNameLabel.setText("First Name: " + staff.getName());
-                        lastNameLabel.setText("Last Name: " + staff.getLastName());
-                        ageLabel.setText("Age: " + staff.getAge());
-                        genderLabel.setText("Gender: " + staff.getGender());
-                        phoneLabel.setText("Phone: " + staff.getPhone());
-                        positionLabel.setText("position: " + staff.getPosition());
-                        salaryLabel.setText("salary: " + staff.getSalary());
-                    } else {
-                        JOptionPane.showMessageDialog(searchStaffPanel, "No Staff found with National ID: " + nationalId);
-                    }
+                // Search for the staff
+                Staff staff = StaffDB.searchStaffByNationalId(nationalId);
+                if (staff != null) {
+                    // Show staff information in a dialog
+                    String staffInfo = "National ID: " + staff.getNationalID() + "\n"
+                            + "First Name: " + staff.getName() + "\n"
+                            + "Last Name: " + staff.getLastName() + "\n"
+                            + "Age: " + staff.getAge() + "\n"
+                            + "Gender: " + staff.getGender() + "\n"
+                            + "Phone: " + staff.getPhone() + "\n"
+                            + "Position: " + staff.getPosition() + "\n"
+                            + "Salary: " + staff.getSalary();
+
+                    JOptionPane.showMessageDialog(searchStaffPanel, staffInfo, "Staff Information", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(searchStaffPanel, "No staff found with this National ID.", "Not Found", JOptionPane.WARNING_MESSAGE);
                 }
             }
         });
 
-        searchStaffPanel.add(searchButton, BorderLayout.NORTH);
-        // Back Button to return to menu
+        // Back Button
         JButton backButton = new JButton("Back to Menu");
+        backButton.setBackground(new Color(204, 0, 0)); // Red button style
+        backButton.setForeground(Color.WHITE);
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.setFocusPainted(false);
+
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardContainer, "Menu"); // Show the menu card
+                cardLayout.show(cardContainer, "Menu"); // Navigate back to menu
             }
         });
 
-        // You can add the back button either to the South or in a different place as per your design preference.
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.add(backButton);
-        searchStaffPanel.add(bottomPanel, BorderLayout.SOUTH);
+        buttonsPanel.add(searchButton);
+        buttonsPanel.add(backButton);
+
+        searchStaffPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         return searchStaffPanel;
+    }
+
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(0, 153, 76)); // Green color
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setFocusPainted(false);
     }
 }
 

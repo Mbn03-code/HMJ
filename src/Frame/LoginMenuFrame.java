@@ -10,10 +10,11 @@ public class LoginMenuFrame extends JFrame {
 
     public LoginMenuFrame() {
         // Set up the frame
-        setTitle("Manage Hospital");
+        setTitle("Manage Hospital System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 500);
         setLayout(new BorderLayout());
+        setLocationRelativeTo(null); // Center the window on screen
 
         // Initialize the main panel
         mainPanel = new JPanel(new GridBagLayout());
@@ -26,13 +27,17 @@ public class LoginMenuFrame extends JFrame {
 
     private void setupLoginPanel() {
         mainPanel.removeAll(); // Clear any existing content
+        mainPanel.setBackground(new Color(245, 245, 245)); // Light gray background for the login panel
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(30, 30, 30, 30);
 
         // Username Label and TextField
         JLabel usernameLabel = new JLabel("Username:");
+        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        usernameLabel.setForeground(new Color(51, 51, 51)); // Dark text color
         JTextField usernameField = new JTextField(15);
+        usernameField.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 0;
         mainPanel.add(usernameLabel, gbc);
@@ -42,7 +47,10 @@ public class LoginMenuFrame extends JFrame {
 
         // Password Label and PasswordField
         JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        passwordLabel.setForeground(new Color(51, 51, 51)); // Dark text color
         JPasswordField passwordField = new JPasswordField(15);
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 1;
         mainPanel.add(passwordLabel, gbc);
@@ -52,6 +60,11 @@ public class LoginMenuFrame extends JFrame {
 
         // Login Button
         JButton loginButton = new JButton("Login");
+        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
+        loginButton.setBackground(new Color(0, 153, 0)); // Green color for the login button
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setPreferredSize(new Dimension(150, 40));
+        loginButton.setFocusPainted(false);
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
@@ -82,13 +95,18 @@ public class LoginMenuFrame extends JFrame {
 
     void setupMenuPanel() {
         mainPanel.removeAll(); // Clear the login form
-
         mainPanel.setLayout(new GridLayout(3, 1, 10, 10));
+        mainPanel.setBackground(new Color(240, 240, 240)); // Light background for menu panel
 
-        // Create menu buttons
+        // Create menu buttons with new colors and fonts
         JButton managePatientsButton = new JButton("Manage Patients");
+        styleButton(managePatientsButton);
+
         JButton manageRoomsButton = new JButton("Manage Rooms");
+        styleButton(manageRoomsButton);
+
         JButton manageStaffButton = new JButton("Manage Staff");
+        styleButton(manageStaffButton);
 
         // Add buttons to the panel
         mainPanel.add(managePatientsButton);
@@ -121,6 +139,16 @@ public class LoginMenuFrame extends JFrame {
         mainPanel.revalidate();
         mainPanel.repaint();
     }
+
+    // Helper method to style buttons
+    private void styleButton(JButton button) {
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBackground(new Color(0, 100, 120)); // Blue color for buttons
+        button.setForeground(Color.WHITE);
+        button.setPreferredSize(new Dimension(10, 30)); // Smaller size for buttons
+        button.setFocusPainted(false);
+    }
+
 
     public static void main(String[] args) {
         new LoginMenuFrame();

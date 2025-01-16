@@ -5,6 +5,7 @@ import MainClasses.Room;
 import MainClasses.RoomType;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -48,16 +49,16 @@ public class ManageRoomsPanel {
         JButton removeRoomButton = new JButton("Remove Room");
         JButton updateRoomButton = new JButton("Update Room Type");
         JButton viewRoomButton = new JButton("View Rooms");
-        JButton AvailableRoomButton = new JButton("View Available Rooms");
+        JButton availableRoomButton = new JButton("View Available Rooms");
         JButton backButton = new JButton("Back to Menu");
 
         // تنظیم رنگ و اندازه دکمه‌ها
-        addRoomButton.setBackground(Color.CYAN);
-        removeRoomButton.setBackground(Color.CYAN);
-        updateRoomButton.setBackground(Color.CYAN);
-        viewRoomButton.setBackground(Color.CYAN);
-        AvailableRoomButton.setBackground(Color.CYAN);
-        backButton.setBackground(Color.CYAN);
+        addRoomButton.setBackground(new Color(0, 153, 204));  // رنگ آبی برای دکمه‌ها
+        removeRoomButton.setBackground(new Color(0, 153, 204));
+        updateRoomButton.setBackground(new Color(0, 153, 204));
+        viewRoomButton.setBackground(new Color(0, 153, 204));
+        availableRoomButton.setBackground(new Color(0, 153, 204));
+        backButton.setBackground(new Color(204, 0, 0));  // دکمه بازگشت با رنگ قرمز
 
         // تنظیم فونت دکمه‌ها
         Font font = new Font("Arial", Font.PLAIN, 16);
@@ -65,23 +66,24 @@ public class ManageRoomsPanel {
         removeRoomButton.setFont(font);
         updateRoomButton.setFont(font);
         viewRoomButton.setFont(font);
-        AvailableRoomButton.setFont(font);
+        availableRoomButton.setFont(font);
         backButton.setFont(font);
 
         // تنظیم اندازه دکمه‌ها
-        addRoomButton.setPreferredSize(new Dimension(200, 50));
-        removeRoomButton.setPreferredSize(new Dimension(200, 50));
-        updateRoomButton.setPreferredSize(new Dimension(200, 50));
-        viewRoomButton.setPreferredSize(new Dimension(200, 50));
-        AvailableRoomButton.setPreferredSize(new Dimension(200, 50));
-        backButton.setPreferredSize(new Dimension(200, 50));
+        Dimension buttonSize = new Dimension(200, 50);
+        addRoomButton.setPreferredSize(buttonSize);
+        removeRoomButton.setPreferredSize(buttonSize);
+        updateRoomButton.setPreferredSize(buttonSize);
+        viewRoomButton.setPreferredSize(buttonSize);
+        availableRoomButton.setPreferredSize(buttonSize);
+        backButton.setPreferredSize(buttonSize);
 
         // Add buttons to the panel
         menuPanel.add(addRoomButton);
         menuPanel.add(removeRoomButton);
         menuPanel.add(updateRoomButton);
         menuPanel.add(viewRoomButton);
-        menuPanel.add(AvailableRoomButton);
+        menuPanel.add(availableRoomButton);
         menuPanel.add(backButton);
 
         // Action listeners for each button
@@ -113,7 +115,7 @@ public class ManageRoomsPanel {
             }
         });
 
-        AvailableRoomButton.addActionListener(new ActionListener() {
+        availableRoomButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(cardContainer, "AvailableRooms");
@@ -129,7 +131,6 @@ public class ManageRoomsPanel {
 
         return menuPanel;
     }
-
 
     private JPanel createAddRoomPanel() {
         JPanel addRoomPanel = new JPanel(new BorderLayout());
@@ -173,7 +174,7 @@ public class ManageRoomsPanel {
         // Submit Button
         JButton submitButton = new JButton("Add Room");
         submitButton.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
-        submitButton.setBackground(Color.GREEN);
+        submitButton.setBackground(new Color(0, 153, 76)); // سبز برای دکمه افزودن
         submitButton.setForeground(Color.WHITE);
         submitButton.setFont(new Font("Arial", Font.BOLD, 12));
         submitButton.setFocusPainted(false);
@@ -188,13 +189,14 @@ public class ManageRoomsPanel {
                 Room room = new Room(RoomType.valueOf(roomType));
                 RoomDB.addRoom(room);
 
+                JOptionPane.showMessageDialog(addRoomPanel, "Room added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
         // Back Button
         JButton backButton = new JButton("Back to Menu");
         backButton.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
-        backButton.setBackground(Color.RED);
+        backButton.setBackground(new Color(204, 0, 0)); // قرمز برای دکمه بازگشت
         backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 12));
         backButton.setFocusPainted(false);
@@ -213,9 +215,6 @@ public class ManageRoomsPanel {
 
         return addRoomPanel;
     }
-
-
-
 
     private JPanel createRemoveRoomPanel() {
         JPanel removeRoomPanel = new JPanel(new BorderLayout());
@@ -242,7 +241,7 @@ public class ManageRoomsPanel {
 
         // Room ID Text Field
         JTextField roomIdField = new JTextField();
-        roomIdField.setPreferredSize(new Dimension(150, 25)); // کوچک‌تر کردن اندازه
+        roomIdField.setPreferredSize(new Dimension(120, 25)); // کوچک‌تر کردن اندازه
         roomIdField.setFont(new Font("Arial", Font.PLAIN, 12)); // تغییر فونت
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -256,8 +255,8 @@ public class ManageRoomsPanel {
 
         // Submit Button
         JButton submitButton = new JButton("Remove Room");
-        submitButton.setPreferredSize(new Dimension(120,30)); // کوچک‌تر کردن دکمه
-        submitButton.setBackground(Color.ORANGE);
+        submitButton.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
+        submitButton.setBackground(new Color(255, 140, 0)); // نارنجی برای دکمه حذف
         submitButton.setForeground(Color.WHITE);
         submitButton.setFont(new Font("Arial", Font.BOLD, 12));
         submitButton.setFocusPainted(false);
@@ -266,14 +265,19 @@ public class ManageRoomsPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String roomId = roomIdField.getText();
-                RoomDB.removeRoomAndReassign(Integer.parseInt(roomId));
+                try {
+                    int roomIdInt = Integer.parseInt(roomId);
+                    RoomDB.removeRoomAndReassign(roomIdInt);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(removeRoomPanel, "Invalid Room ID entered.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
         // Back Button
         JButton backButton = new JButton("Back to Menu");
         backButton.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
-        backButton.setBackground(Color.RED);
+        backButton.setBackground(new Color(204, 0, 0)); // قرمز برای دکمه بازگشت
         backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 12));
         backButton.setFocusPainted(false);
@@ -292,7 +296,6 @@ public class ManageRoomsPanel {
 
         return removeRoomPanel;
     }
-
 
     private JPanel createUpdateRoomPanel() {
         JPanel updateRoomPanel = new JPanel(new BorderLayout());
@@ -349,7 +352,7 @@ public class ManageRoomsPanel {
         // Submit Button
         JButton submitButton = new JButton("Update Room Type");
         submitButton.setPreferredSize(new Dimension(120, 30));
-        submitButton.setBackground(Color.GREEN);
+        submitButton.setBackground(new Color(34, 139, 34)); // رنگ سبز روشن برای دکمه به‌روزرسانی
         submitButton.setForeground(Color.WHITE);
         submitButton.setFont(new Font("Arial", Font.BOLD, 12));
         submitButton.setFocusPainted(false);
@@ -360,14 +363,20 @@ public class ManageRoomsPanel {
                 String roomId = roomIdField.getText();
                 String roomType = (String) roomTypeComboBox.getSelectedItem();
 
-                RoomDB.updateRoomType(Integer.parseInt(roomId), roomType);
+                try {
+                    int roomIdInt = Integer.parseInt(roomId);
+                    RoomDB.updateRoomType(roomIdInt, roomType);
+                    JOptionPane.showMessageDialog(updateRoomPanel, "Room type updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(updateRoomPanel, "Invalid Room ID entered.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
         // Back Button
         JButton backButton = new JButton("Back to Menu");
         backButton.setPreferredSize(new Dimension(120, 30));
-        backButton.setBackground(Color.RED);
+        backButton.setBackground(new Color(204, 0, 0)); // قرمز برای دکمه بازگشت
         backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 12));
         backButton.setFocusPainted(false);
@@ -386,7 +395,6 @@ public class ManageRoomsPanel {
 
         return updateRoomPanel;
     }
-
 
     private JPanel createViewRoomPanel() {
         JPanel viewRoomPanel = new JPanel(new BorderLayout());
@@ -504,7 +512,5 @@ public class ManageRoomsPanel {
 
         return availableRoomPanel;
     }
-
-
 
 }
