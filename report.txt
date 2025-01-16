@@ -1,0 +1,58 @@
+Access denied for user 'username'@'localhost' (using password: YES)
+Access denied for user 'username'@'localhost' (using password: YES)
+No available rooms.
+Patient added: ali karimi
+No available rooms.
+Patient added: ali karimi
+national id must be exactly 10 digits.
+No available rooms.
+Patient added: ali yari
+national id must be exactly 10 digits.
+No available rooms.
+Patient added: ali yari
+No available rooms.
+Column 'occupied' not found.
+Room added successfully.
+Room added successfully.
+Room deleted successfully.
+Room removed: 120
+Room deleted successfully.
+Room type updated successfully.
+Room type updated: 118
+No room found with the specified roomId.
+Room type updated successfully.
+phone number must be exactly 11 digit !
+No available rooms.
+Room added successfully.
+Room added successfully.
+Room added successfully.
+No available rooms with the selected type.
+Room added successfully.
+Patient added successfully.
+No available rooms with the selected type.
+Patient removed successfully.
+Room status updated successfully.
+Patient removed: 1223456789
+Patient removed successfully.
+Room status updated successfully.
+No patient found with the provided national ID.
+Room added successfully.
+Patient added successfully.
+No patient found with the specified nationalID.
+Data truncation: Data too long for column 'phone' at row 1
+Patient details updated successfully.
+Patient added successfully.
+Staff added successfully.
+Staff added: bxshkgv jdnj
+Staff removed successfully.
+Staff removed: 1111111111
+Staff added successfully.
+Staff added: bxshkgv jdnj
+Incorrect decimal value: 'jnjn' for column 'Salary' at row 1
+Staff update: 1111111111
+Incorrect decimal value: 'jnjn' for column 'Salary' at row 1
+Staff update: 1111111111
+Staff details updated successfully.
+Staff update: 1111111111
+phone number must be exactly 11 digit !
+phone number must be exactly 11 digit !

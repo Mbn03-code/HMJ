@@ -1,5 +1,7 @@
 package Database;
 
+import File.ReportFile;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -28,8 +30,7 @@ public class DatabaseConnection {
                 connection.close();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-
+            ReportFile.logMessage(e.getMessage());
         }
     }
 }

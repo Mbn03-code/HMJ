@@ -1,7 +1,7 @@
-package model;
+package MainClasses;
 
 public class Room {
-    private int roomID;
+    private String roomID;
     private RoomType type;
     private boolean isOccupied;
 
@@ -9,11 +9,21 @@ public class Room {
         this.type = roomType;
     }
 
-    public int getRoomID() {
+    public Room(String roomId, String type, boolean isOccupied) {
+        this.roomID=roomId;
+        this.type= RoomType.valueOf(type);
+        this.isOccupied=isOccupied;
+    }
+
+    public Room() {
+
+    }
+
+    public String getRoomID() {
         return roomID;
     }
 
-    public void setRoomID(int roomID) {
+    public void setRoomID(String roomID) {
         this.roomID = roomID;
     }
 

@@ -1,14 +1,16 @@
-package model;
+package MainClasses;
+
+import File.ReportFile;
 
 public class Person {
     private String nationalID;
     private String name;
     private String lastName;
-    private int age;
+    private String age;
     private String gender;
     private String phone;
 
-    public Person(String nationalID, String name, String lastName, int age, String gender, String phone) {
+    public Person(String nationalID, String name, String lastName, String age, String gender, String phone) {
         setNationalID(nationalID);
         this.name = name;
         this.lastName = lastName;
@@ -23,7 +25,7 @@ public class Person {
 
     public void setNationalID(String nationalID) {
         if (nationalID !=null && nationalID.matches("\\d{10}"))this.nationalID=nationalID;
-        else throw new IllegalArgumentException("national id must be exactly 10 digits.");
+        else ReportFile.logMessage("national id must be exactly 10 digits.");
     }
 
     public String getName() {
@@ -42,11 +44,11 @@ public class Person {
         this.lastName = lastName;
     }
 
-    public int getAge() {
+    public String getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(String age) {
         this.age = age;
     }
 
@@ -56,7 +58,7 @@ public class Person {
 
     public void setGender(String gender) {
         if (gender.equalsIgnoreCase("male")||gender.equalsIgnoreCase("female"))this.gender=gender;
-        else throw new  IllegalArgumentException("Gender must be 'male' or 'female' ");
+        else ReportFile.logMessage("Gender must be 'male' or 'female' ");
     }
 
     public String getPhone() {
@@ -65,7 +67,7 @@ public class Person {
 
     public void setPhone(String phone) {
         if (phone !=null && phone.matches("\\d{11}"))this.phone=phone;
-        else throw new IllegalArgumentException("phone number must be exactly 11 digits.");
+        else ReportFile.logMessage("phone number must be exactly 11 digit !");
     }
 
     public String getInfo() {

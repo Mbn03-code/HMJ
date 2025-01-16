@@ -1,4 +1,4 @@
-package model;
+package MainClasses;
 
 public enum RoomType {
     ICU,

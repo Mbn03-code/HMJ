@@ -1,10 +1,10 @@
-package model;
+package MainClasses;
 
 public class Staff extends Person{
     private String position;
     private String salary;
 
-    public Staff(String nationalID, String name, String lastName, int age, String gender, String phone, String position, String salary) {
+    public Staff(String nationalID, String name, String lastName, String age, String gender, String phone, String position, String salary) {
         super(nationalID, name, lastName, age, gender, phone);
         this.position = position;
         this.salary = salary;

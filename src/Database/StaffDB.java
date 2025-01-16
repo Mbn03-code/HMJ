@@ -1,11 +1,10 @@
 package Database;
 
+import File.ReportFile;
 import MainClasses.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class StaffDB {
             statement.setString(1, staff.getNationalID());
             statement.setString(2, staff.getName());
             statement.setString(3, staff.getLastName());
-            statement.setInt(4, staff.getAge());
+            statement.setString(4, staff.getAge());
             statement.setString(5, staff.getGender());
             statement.setString(6, staff.getPhone());
             statement.setString(7, staff.getPosition());
@@ -37,17 +36,17 @@ public class StaffDB {
 
             // اجرای دستور
             statement.executeUpdate();
-            System.out.println("Staff added successfully.");
+            ReportFile.logMessage("Staff added successfully.");
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
         } finally {
             // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
             }
         }
     }
@@ -69,26 +68,27 @@ public class StaffDB {
             int affectedRows = statement.executeUpdate();
 
             if (affectedRows > 0) {
-                System.out.println("Staff removed successfully.");
+                ReportFile.logMessage("Staff removed successfully.");
             } else {
-                System.out.println("No staff found with the provided national ID.");
+                ReportFile.logMessage("No staff found with the provided national ID.");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
         } finally {
             // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
+
             }
         }
     }
 
     // متد برای به‌روزرسانی اطلاعات کارکن
-    public static void updateStaffDetails(String nationalID, String name, String lastName, Integer age, String gender, String phone, String position, String salary) {
+    public static void updateStaffDetails(String nationalID, String name, String lastName, String age, String gender, String phone, String position, String salary) {
         Connection connection = null;
         PreparedStatement statement = null;
 
@@ -141,7 +141,7 @@ public class StaffDB {
             int paramIndex = 1;
             if (name != null) statement.setString(paramIndex++, name);
             if (lastName != null) statement.setString(paramIndex++, lastName);
-            if (age != null) statement.setInt(paramIndex++, age);
+            if (age != null) statement.setString(paramIndex++, age);
             if (gender != null) statement.setString(paramIndex++, gender);
             if (phone != null) statement.setString(paramIndex++, phone);
             if (position != null) statement.setString(paramIndex++, position);
@@ -151,123 +151,102 @@ public class StaffDB {
             // اجرای دستور
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("Staff details updated successfully.");
+                ReportFile.logMessage("Staff details updated successfully.");
             } else {
-                System.out.println("No staff found with the specified nationalID.");
+                ReportFile.logMessage("No staff found with the specified nationalID.");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
+
         } finally {
             // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
+
             }
         }
     }
 
     // متد برای خواندن اطلاعات تمام کارکنان
-    public static List<Staff> readStaff() {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        List<Staff> staffList = new ArrayList<>();  // لیست کارکنان
+    public static void readAllStaff(DefaultTableModel tableModel) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
-            connection = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getConnection();
 
-            // دستور SQL برای خواندن تمام کارکنان
-            String sql = "SELECT nationalID, name, lastName, age, gender, phone, position, salary FROM staff";
+            String query = "SELECT * FROM Staff";
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
 
-            statement = connection.prepareStatement(sql);
-            resultSet = statement.executeQuery();
+            while (rs.next()) {
+                String nationalId = rs.getString("nationalId");
+                String firstName = rs.getString("name");
+                String lastName = rs.getString("lastname");
+                String age = rs.getString("age");
+                String gender = rs.getString("gender");
+                String phone = rs.getString("phone");
+                String position = rs.getString("position");
+                String salary = rs.getString("salary");
 
-            while (resultSet.next()) {
-                String nationalID = resultSet.getString("nationalID");
-                String name = resultSet.getString("name");
-                String lastName = resultSet.getString("lastName");
-                int age = resultSet.getInt("age");
-                String gender = resultSet.getString("gender");
-                String phone = resultSet.getString("phone");
-                String position = resultSet.getString("position");
-                String salary = resultSet.getString("salary");
-
-                // اضافه کردن هر کارمند به لیست
-                Staff staffMember = new Staff(nationalID, name, lastName, age, gender, phone, position, salary);
-                staffList.add(staffMember);
+                Object[] row = {nationalId, firstName, lastName, age, gender, phone,position, salary};
+                tableModel.addRow(row);
             }
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
+
         } finally {
             try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
+
             }
         }
-
-        return staffList;  // بازگشت لیست کارکنان
     }
 
-
-    // متد برای جستجو کارکن بر اساس کد ملی
-    public static void searchStaffByNationalID(String nationalID) {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+    public static Staff searchStaffByNationalId(String nationalId) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
-            if (nationalID == null || nationalID.isEmpty()) {
-                System.out.println("Please provide a valid National ID.");
-                return;
+            conn=DatabaseConnection.getConnection();
+
+            String query = "SELECT * FROM Staff WHERE nationalId = ?";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, nationalId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String firstName = rs.getString("name");
+                String lastName = rs.getString("lastname");
+                String age = rs.getString("age");
+                String gender = rs.getString("gender");
+                String phone = rs.getString("phone");
+                String position = rs.getString("position");
+                String salary = rs.getString("salary");
+
+                return new Staff(nationalId, firstName, lastName, age, gender, phone, position , salary );
             }
-
-            connection = DatabaseConnection.getConnection();
-
-            // کوئری SQL برای جستجوی کارکن بر اساس کد ملی
-            String sql = "SELECT nationalID, name, lastName, age, gender, phone, position, salary FROM staff WHERE nationalID = ?";
-            statement = connection.prepareStatement(sql);
-            statement.setString(1, nationalID);
-
-            resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                System.out.println("Staff found:");
-                System.out.println("-------------------------------------------------------------");
-                do {
-                    String foundNationalID = resultSet.getString("nationalID");
-                    String foundName = resultSet.getString("name");
-                    String foundLastname = resultSet.getString("lastName");
-                    int age = resultSet.getInt("age");
-                    String gender = resultSet.getString("gender");
-                    String phone = resultSet.getString("phone");
-                    String position = resultSet.getString("position");
-                    String salary = resultSet.getString("salary");
-
-                    System.out.printf("National ID: %s, Name: %s %s, Age: %d, Gender: %s, Phone: %s, Position: %s, Salary: %s%n",
-                            foundNationalID, foundName, foundLastname, age, gender, phone, position, salary);
-                } while (resultSet.next());
-                System.out.println("-------------------------------------------------------------");
-            } else {
-                System.out.println("No staff found with the given National ID.");
-            }
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
         } finally {
             try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
             }
         }
+        return null;
     }
 }

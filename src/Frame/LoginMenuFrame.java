@@ -2,16 +2,17 @@ package Frame;
 
 import javax.swing.*;
 import java.awt.*;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class LoginMenuFrame extends JFrame {
     private JPanel mainPanel;
 
     public LoginMenuFrame() {
         // Set up the frame
-        setTitle("Login Page");
+        setTitle("Manage Hospital");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 250);
+        setSize(500, 500);
         setLayout(new BorderLayout());
 
         // Initialize the main panel
@@ -99,6 +100,13 @@ public class LoginMenuFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new ManagePatientsPanel(mainPanel);
+            }
+        });
+
+        manageRoomsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ManageRoomsPanel(mainPanel);
             }
         });
 

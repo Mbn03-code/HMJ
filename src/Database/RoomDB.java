@@ -1,11 +1,11 @@
 package Database;
 
+import File.ReportFile;
+import MainClasses.Patient;
 import MainClasses.Room;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
 
 
 public class RoomDB {
@@ -30,10 +30,10 @@ public class RoomDB {
 
             // اجرای دستور
             statement.executeUpdate();
-            System.out.println("Room added successfully.");
+            ReportFile.logMessage("Room added successfully.");
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
         } finally {
             // بستن منابع
             try {
@@ -44,7 +44,7 @@ public class RoomDB {
                     connection.close();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
             }
         }
     }
@@ -104,7 +104,7 @@ public class RoomDB {
                         updatePatientStatement.setString(2, nationalID);
                         updatePatientStatement.executeUpdate();
 
-                        System.out.println("Room reassigned successfully for patient.");
+                        ReportFile.logMessage("Room reassigned successfully for patient.");
                     } else {
                         // اتاق خالی پیدا نشد، بیمار از جدول حذف می‌شود
                         String deletePatientSQL = "DELETE FROM patients WHERE nationalID = ?";
@@ -112,7 +112,7 @@ public class RoomDB {
                         deletePatientStatement.setString(1, nationalID);
                         deletePatientStatement.executeUpdate();
 
-                        System.out.println("No available room with the same type. Patient discharged and removed from the database.");
+                        ReportFile.logMessage("No available room with the same type. Patient discharged and removed from the database.");
                     }
                 }
 
@@ -122,13 +122,13 @@ public class RoomDB {
                 deleteRoomStatement.setInt(1, roomId);
                 deleteRoomStatement.executeUpdate();
 
-                System.out.println("Room deleted successfully.");
+                ReportFile.logMessage("Room deleted successfully.");
             } else {
-                System.out.println("No room found with the specified roomId.");
+                ReportFile.logMessage("No room found with the specified roomId.");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
         } finally {
             // بستن منابع
             try {
@@ -141,7 +141,7 @@ public class RoomDB {
                 if (deleteRoomStatement != null) deleteRoomStatement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
             }
         }
     }
@@ -166,105 +166,101 @@ public class RoomDB {
             // اجرای دستور
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("Room type updated successfully.");
+                ReportFile.logMessage("Room type updated successfully.");
             } else {
-                System.out.println("No room found with the specified roomId.");
+                ReportFile.logMessage("No room found with the specified roomId.");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
         } finally {
             // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
             }
         }
     }
-    public static void readRooms() {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+    public static void readRoom(DefaultTableModel tableModel) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
-            // اتصال به پایگاه داده
-            connection = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getConnection();
 
-            // کوئری SQL برای خواندن تمامی اتاق‌ها
-            String sql = "SELECT roomId, type, isOccupied FROM rooms";
-            statement = connection.prepareStatement(sql);
+            String query = "SELECT * FROM rooms";
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
 
-            // اجرای query
-            resultSet = statement.executeQuery();
+            while (rs.next()) {
+                int roomId = rs.getInt("roomid");
+                String roomType=rs.getString("type");
+                int occupied=rs.getInt("isOccupied");
 
-            // بررسی نتایج
-            System.out.println("Rooms in the database:");
-            System.out.println("-------------------------------------------------------------");
-            while (resultSet.next()) {
-                int roomId = resultSet.getInt("roomId");
-                String type = resultSet.getString("type");
-                boolean isOccupied = resultSet.getBoolean("isOccupied");
-
-                System.out.printf("Room ID: %d, Type: %s, Occupied: %s%n",
-                        roomId, type, isOccupied ? "Yes" : "No");
+                Object[] row = {roomId,roomType ,occupied};
+                tableModel.addRow(row);
             }
-            System.out.println("-------------------------------------------------------------");
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
+
         } finally {
-            // بستن منابع
             try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
+
             }
         }
     }
-    public static void readAvailableRooms() {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+
+    public static Room availableRoom() {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
-            // اتصال به پایگاه داده
-            connection = DatabaseConnection.getConnection();
+            // Establish database connection
+            conn = DatabaseConnection.getConnection();
 
-            // کوئری برای دریافت اتاق‌های خالی
-            String sql = "SELECT roomId, type FROM rooms WHERE isOccupied = false";
-            statement = connection.prepareStatement(sql);
-            resultSet = statement.executeQuery();
+            // SQL query to find the first available room
+            String query = "SELECT * FROM rooms WHERE isOccupied = 0";
+            ps = conn.prepareStatement(query);
 
-            // نمایش اتاق‌های خالی
-            System.out.println("Available Rooms:");
-            boolean found = false;
-            while (resultSet.next()) {
-                int roomId = resultSet.getInt("roomId");
-                String type = resultSet.getString("type");
-                System.out.println("Room ID: " + roomId + ", Type: " + type);
-                found = true;
+            // Execute the query
+            rs = ps.executeQuery();
+
+            // Check if a result is found
+            if (rs.next()) {
+                String roomId = rs.getString("roomId");
+                String type = rs.getString("type");
+                boolean isOccupied = rs.getBoolean("isOccupied");
+
+                // Create and return the Room object
+                return new Room(roomId, type, isOccupied);
+            } else {
+                // No available room found
+                return null;
             }
-
-            if (!found) {
-                System.out.println("No available rooms found.");
-            }
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            // Log the error message
+            ReportFile.logMessage("Error finding an available room: " + e.getMessage());
+            return null;
         } finally {
-            // بستن منابع
+            // Close resources
             try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage("Error closing resources: " + e.getMessage());
             }
         }
     }
+
 
 }

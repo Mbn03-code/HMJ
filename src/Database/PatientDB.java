@@ -1,17 +1,16 @@
 package Database;
 
+import File.ReportFile;
 import MainClasses.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+import java.util.Arrays;
 
 public class PatientDB {
 
     // متد برای افزودن بیمار به جدول patients
-    public static void addPatient(Patient patient) {
+    public static void addPatient(Patient patient, String roomType) {
         Connection connection = null;
         PreparedStatement statement = null;
         PreparedStatement roomStatement = null;
@@ -20,70 +19,66 @@ public class PatientDB {
         try {
             connection = DatabaseConnection.getConnection();
 
-            // مرحله اول: انتخاب اولین اتاق خالی (isOccupied = false)
-            String roomSql = "SELECT roomId FROM rooms WHERE isOccupied = false LIMIT 1";
+            // درخواست اتاق خالی با نوع مشخص شده از کاربر
+            String roomSql = "SELECT roomId FROM rooms WHERE isOccupied = false AND type = ? LIMIT 1";
             roomStatement = connection.prepareStatement(roomSql);
+            roomStatement.setString(1, roomType);  // استفاده از نوع اتاق
             resultSet = roomStatement.executeQuery();
 
             if (resultSet.next()) {
-                // اتاق موجود را پیدا کردیم
-                int roomId = resultSet.getInt("roomId");
+                // اتاق خالی پیدا شد
+                String roomId = resultSet.getString("roomId");
 
                 // به روز رسانی وضعیت اتاق برای اینکه دیگر در دسترس نباشد
                 String updateRoomSql = "UPDATE rooms SET isOccupied = true WHERE roomId = ?";
                 statement = connection.prepareStatement(updateRoomSql);
-                statement.setInt(1, roomId);
+                statement.setString(1, roomId);
                 statement.executeUpdate();
 
-                // انتخاب اتاق برای بیمار
-                patient.getRoom().setRoomID(roomId); // اختصاص شناسه اتاق به بیمار
-                patient.getRoom().setOccupied(true); // بروزرسانی وضعیت isOccupied در شیء Room
+                // اختصاص اتاق به بیمار
+                Room room = new Room(roomId, roomType, true);
+                patient.setRoom(room);
+                patient.getRoom().setRoomID(roomId);  // اختصاص شناسه اتاق به بیمار
+                patient.getRoom().setOccupied(true);  // بروزرسانی وضعیت isOccupied در شیء Room
+
+                // دستور SQL برای اضافه کردن بیمار به جدول patients
+                String sql = "INSERT INTO patients (nationalID, name, lastName, age, gender, phone, roomId, admissionDate, dischargeDate) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+                // آماده‌سازی statement
+                statement = connection.prepareStatement(sql);
+
+                // تعیین مقادیر برای پارامترهای دستور SQL
+                statement.setString(1, patient.getNationalID());
+                statement.setString(2, patient.getName());
+                statement.setString(3, patient.getLastName());
+                statement.setString(4, patient.getAge());
+                statement.setString(5, patient.getGender());
+                statement.setString(6, patient.getPhone());
+                statement.setString(7, patient.getRoom().getRoomID());
+                statement.setString(8,patient.getAdmissionDate());
+                statement.setString(9, patient.getDischargeDate());
+
+                // اجرای دستور
+                statement.executeUpdate();
+                ReportFile.logMessage("Patient added successfully.");
+
             } else {
-                System.out.println("No available rooms.");
+                ReportFile.logMessage("No available rooms with the selected type.");
                 return; // اگر هیچ اتاق خالی نباشد، عملیات را متوقف می‌کنیم
             }
 
-            // دستور SQL برای اضافه کردن بیمار
-            String sql = "INSERT INTO patients (nationalID, name, lastName, age, gender, phone, roomId, admissionDate, dischargeDate) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            // آماده‌سازی statement
-            statement = connection.prepareStatement(sql);
-
-            // تعیین مقادیر برای پارامترهای دستور SQL
-            statement.setString(1, patient.getNationalID());
-            statement.setString(2, patient.getName());
-            statement.setString(3, patient.getLastName());
-            statement.setInt(4, patient.getAge());
-            statement.setString(5, patient.getGender());
-            statement.setString(6, patient.getPhone());
-            statement.setInt(7, patient.getRoom().getRoomID());  // شناسه اتاق
-            statement.setDate(8, java.sql.Date.valueOf(patient.getAdmissionDate()));  // تبدیل LocalDate به Date
-            statement.setDate(9, java.sql.Date.valueOf(patient.getDischargeDate()));  // تبدیل LocalDate به Date
-
-            // اجرای دستور
-            statement.executeUpdate();
-            System.out.println("Patient added successfully.");
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
         } finally {
             // بستن منابع
             try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (roomStatement != null) {
-                    roomStatement.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
+                if (resultSet != null) resultSet.close();
+                if (roomStatement != null) roomStatement.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
             }
         }
     }
@@ -105,7 +100,7 @@ public class PatientDB {
             int affectedRows = deletePatientStatement.executeUpdate();
 
             if (affectedRows > 0) {
-                System.out.println("Patient removed successfully.");
+                ReportFile.logMessage("Patient removed successfully.");
 
                 // دستور SQL برای به‌روزرسانی وضعیت اتاق
                 String updateRoomSQL = "UPDATE rooms SET isOccupied = 0 WHERE RoomID NOT IN (SELECT roomId FROM patients)";
@@ -113,13 +108,14 @@ public class PatientDB {
 
                 // اجرای دستور به‌روزرسانی
                 updateRoomStatement.executeUpdate();
-                System.out.println("Room status updated successfully.");
+                ReportFile.logMessage("Room status updated successfully.");
             } else {
-                System.out.println("No patient found with the provided national ID.");
+                ReportFile.logMessage("No patient found with the provided national ID.");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
+
         } finally {
             // بستن منابع
             try {
@@ -127,11 +123,11 @@ public class PatientDB {
                 if (updateRoomStatement != null) updateRoomStatement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
             }
         }
     }
-    public static void updatePatientDetails(String nationalID, String name, String lastName, Integer age, String gender, String phone) {
+    public static void updatePatientDetails(String nationalID, String name, String lastName, String age, String gender, String phone) {
         Connection connection = null;
         PreparedStatement statement = null;
 
@@ -177,7 +173,7 @@ public class PatientDB {
             int paramIndex = 1;
             if (name != null) statement.setString(paramIndex++, name);
             if (lastName != null) statement.setString(paramIndex++, lastName);
-            if (age != null) statement.setInt(paramIndex++, age);
+            if (age != null) statement.setString(paramIndex++, age);
             if (gender != null) statement.setString(paramIndex++, gender);
             if (phone != null) statement.setString(paramIndex++, phone);
             statement.setString(paramIndex, nationalID);
@@ -185,129 +181,107 @@ public class PatientDB {
             // اجرای دستور
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("Patient details updated successfully.");
+                ReportFile.logMessage("Patient details updated successfully.");
             } else {
-                System.out.println("No patient found with the specified nationalID.");
+                ReportFile.logMessage("No patient found with the specified nationalID.");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
+
         } finally {
             // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
+
             }
         }
     }
 
-    public static void readPatients() {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+    public static void readAllPatients(DefaultTableModel tableModel) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
-            // اتصال به پایگاه داده
-            connection = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getConnection();
 
-            // دستور SQL برای خواندن تمام بیماران
-            String sql = "SELECT nationalID, name, lastname, age, gender, phone, roomId, dischargeDate FROM patients";
+            String query = "SELECT * FROM patients";
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
 
-            // آماده‌سازی statement
-            statement = connection.prepareStatement(sql);
+            while (rs.next()) {
+                String nationalId = rs.getString("nationalId");
+                String firstName = rs.getString("name");
+                String lastName = rs.getString("lastname");
+                String age = rs.getString("age");
+                String gender = rs.getString("gender");
+                String phone = rs.getString("phone");
+                int roomId = rs.getInt("roomid");
+                String admissionDate = rs.getString("admissiondate");
+                String dischargeDate = rs.getString("dischargedate");
 
-            // اجرای query
-            resultSet = statement.executeQuery();
+                Object[] row = {nationalId, firstName, lastName, age, gender, phone, roomId, admissionDate, dischargeDate};
+                tableModel.addRow(row);
+                System.out.println(Arrays.toString(row));
 
-            // نمایش اطلاعات
-            System.out.println("Patients List:");
-            System.out.println("-------------------------------------------------------------");
-            while (resultSet.next()) {
-                String nationalID = resultSet.getString("nationalID");
-                String name = resultSet.getString("name");
-                String lastname = resultSet.getString("lastname");
-                int age = resultSet.getInt("age");
-                String gender = resultSet.getString("gender");
-                String phone = resultSet.getString("phone");
-                int roomId = resultSet.getInt("roomId");
-                java.sql.Date dischargeDate = resultSet.getDate("dischargeDate");
-
-                System.out.printf("National ID: %s, Name: %s %s, Age: %d, Gender: %s, Phone: %s, Room ID: %d, Discharge Date: %s%n",
-                        nationalID, name, lastname, age, gender, phone, roomId, dischargeDate != null ? dischargeDate.toString() : "N/A");
             }
-            System.out.println("-------------------------------------------------------------");
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
+
         } finally {
-            // بستن منابع
             try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
+
             }
         }
     }
-    public static void searchPatientByNationalID(String nationalID) {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+
+    public static Patient searchPatientsByNationalId(String nationalId) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
-            // بررسی مقدار ورودی
-            if (nationalID == null || nationalID.isEmpty()) {
-                System.out.println("Please provide a valid National ID.");
-                return;
+            conn =DatabaseConnection.getConnection();
+
+            String query = "SELECT * FROM patients WHERE nationalId = ?";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, nationalId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String firstName = rs.getString("name");
+                String lastName = rs.getString("lastname");
+                String age = rs.getString("age");
+                String gender = rs.getString("gender");
+                String phone = rs.getString("phone");
+                String roomId = rs.getString("roomid");
+                String admissionDate = rs.getString("admissiondate");
+                String dischargeDate = rs.getString("dischargedate");
+
+
+                return new Patient(nationalId, firstName, lastName, age, gender, phone,roomId, admissionDate, dischargeDate != null ? dischargeDate : "");
             }
-
-            // اتصال به پایگاه داده
-            connection = DatabaseConnection.getConnection();
-
-            // کوئری SQL برای جستجوی بیمار بر اساس کد ملی
-            String sql = "SELECT nationalID, name, lastname, age, gender, phone, roomId, dischargeDate FROM patients WHERE nationalID = ?";
-            statement = connection.prepareStatement(sql);
-            statement.setString(1, nationalID);
-
-            // اجرای query
-            resultSet = statement.executeQuery();
-
-            // بررسی نتایج و نمایش اطلاعات
-            if (resultSet.next()) {
-                System.out.println("Patient found:");
-                System.out.println("-------------------------------------------------------------");
-                do {
-                    String foundNationalID = resultSet.getString("nationalID");
-                    String foundName = resultSet.getString("name");
-                    String foundLastname = resultSet.getString("lastname");
-                    int age = resultSet.getInt("age");
-                    String gender = resultSet.getString("gender");
-                    String phone = resultSet.getString("phone");
-                    int roomId = resultSet.getInt("roomId");
-                    java.sql.Date dischargeDate = resultSet.getDate("dischargeDate");
-
-                    System.out.printf("National ID: %s, Name: %s %s, Age: %d, Gender: %s, Phone: %s, Room ID: %d, Discharge Date: %s%n",
-                            foundNationalID, foundName, foundLastname, age, gender, phone, roomId, dischargeDate != null ? dischargeDate.toString() : "N/A");
-                } while (resultSet.next());
-                System.out.println("-------------------------------------------------------------");
-            } else {
-                System.out.println("No patient found with the given National ID.");
-            }
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            ReportFile.logMessage(e.getMessage());
         } finally {
-            // بستن منابع
             try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                ReportFile.logMessage(e.getMessage());
             }
         }
+        return null;
     }
+
 }
