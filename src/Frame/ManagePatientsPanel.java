@@ -268,13 +268,15 @@ public class ManagePatientsPanel {
         removePatientPanel.add(label, BorderLayout.NORTH);
 
         // Form Panel with National ID field
-        JPanel formPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Use FlowLayout for better control
         formPanel.setBackground(Color.WHITE); // White background for the form
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Padding around the form
 
-        formPanel.add(new JLabel("National ID:"));
+        JLabel idLabel = new JLabel("National ID:");
+        formPanel.add(idLabel);
+
         JTextField nationalIdField = new JTextField();
-        nationalIdField.setPreferredSize(new Dimension(120, 25));
+        nationalIdField.setPreferredSize(new Dimension(200, 30)); // Smaller size for the field
         formPanel.add(nationalIdField);
 
         removePatientPanel.add(formPanel, BorderLayout.CENTER);
@@ -325,6 +327,7 @@ public class ManagePatientsPanel {
 
         return removePatientPanel;
     }
+
 
 
 
@@ -482,13 +485,15 @@ public class ManagePatientsPanel {
         searchPatientPanel.add(label, BorderLayout.NORTH);
 
         // Form Panel for National ID input
-        JPanel formPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Use FlowLayout for better control
         formPanel.setBackground(Color.WHITE);
-        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Padding for the form
 
-        formPanel.add(new JLabel("National ID:"));
+        JLabel idLabel = new JLabel("National ID:");
+        formPanel.add(idLabel);
+
         JTextField nationalIdField = new JTextField();
-        nationalIdField.setPreferredSize(new Dimension(120, 25));
+        nationalIdField.setPreferredSize(new Dimension(200, 30)); // Set the size for the input field
         formPanel.add(nationalIdField);
 
         searchPatientPanel.add(formPanel, BorderLayout.CENTER);

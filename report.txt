@@ -62,3 +62,11 @@ Staff details updated successfully.
 national id must be exactly 10 digits.
 Column 'nationalId' cannot be null
 Staff added successfully.
+Patient added successfully.
+Patient removed successfully.
+Room status updated successfully.
+Room deleted successfully.
+Room added successfully.
+Data truncation: Out of range value for column 'Salary' at row 1
+Staff added successfully.
+Staff details updated successfully.

@@ -249,13 +249,16 @@ public class ManageStaffPanel {
         removeStaffPanel.add(label, BorderLayout.NORTH);
 
         // Form Panel
-        JPanel formPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Use FlowLayout for better control
         formPanel.setBackground(Color.WHITE); // White background for the form
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Padding around the form
 
         // National ID field
-        formPanel.add(new JLabel("National ID:"));
+        JLabel idLabel = new JLabel("National ID:");
+        formPanel.add(idLabel);
+
         JTextField nationalIdField = new JTextField();
+        nationalIdField.setPreferredSize(new Dimension(200, 30)); // Set the size of the input field
         formPanel.add(nationalIdField);
 
         removeStaffPanel.add(formPanel, BorderLayout.CENTER);
@@ -263,7 +266,6 @@ public class ManageStaffPanel {
         // Buttons Panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonsPanel.setBackground(new Color(230, 240, 250)); // Same background color as the main panel
-        buttonsPanel.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
 
         // Submit Button
         JButton submitButton = new JButton("Remove Staff");
@@ -271,7 +273,7 @@ public class ManageStaffPanel {
         submitButton.setForeground(Color.WHITE);
         submitButton.setFont(new Font("Arial", Font.BOLD, 14));
         submitButton.setFocusPainted(false);
-        submitButton.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
+        submitButton.setPreferredSize(new Dimension(150, 40)); // Adjust button size
 
         // Back Button
         JButton backButton = new JButton("Back to Menu");
@@ -279,14 +281,19 @@ public class ManageStaffPanel {
         backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.setFocusPainted(false);
-        submitButton.setPreferredSize(new Dimension(120, 30)); // کوچک‌تر کردن دکمه
+        backButton.setPreferredSize(new Dimension(150, 40)); // Adjust button size
 
         // Action Listeners
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String nationalId = nationalIdField.getText();
+                if (nationalId.isEmpty()) {
+                    JOptionPane.showMessageDialog(removeStaffPanel, "Please enter a National ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 StaffDB.removeStaff(nationalId); // Logic to remove the staff
+                JOptionPane.showMessageDialog(removeStaffPanel, "Staff removed successfully.");
             }
         });
 
@@ -469,13 +476,15 @@ public class ManageStaffPanel {
         searchStaffPanel.add(label, BorderLayout.NORTH);
 
         // Form Panel for National ID input
-        JPanel formPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Use FlowLayout for better control
         formPanel.setBackground(Color.WHITE);
-        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Padding for the form
 
-        formPanel.add(new JLabel("National ID:"));
+        JLabel idLabel = new JLabel("National ID:");
+        formPanel.add(idLabel);
+
         JTextField nationalIdField = new JTextField();
-        nationalIdField.setPreferredSize(new Dimension(120, 30));
+        nationalIdField.setPreferredSize(new Dimension(200, 30)); // Set the size of the input field
         formPanel.add(nationalIdField);
 
         searchStaffPanel.add(formPanel, BorderLayout.CENTER);
@@ -490,6 +499,7 @@ public class ManageStaffPanel {
         searchButton.setForeground(Color.WHITE);
         searchButton.setFont(new Font("Arial", Font.BOLD, 14));
         searchButton.setFocusPainted(false);
+        searchButton.setPreferredSize(new Dimension(150, 40)); // Adjust button size
 
         searchButton.addActionListener(new ActionListener() {
             @Override
@@ -526,6 +536,7 @@ public class ManageStaffPanel {
         backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.setFocusPainted(false);
+        backButton.setPreferredSize(new Dimension(150, 40)); // Adjust button size
 
         backButton.addActionListener(new ActionListener() {
             @Override

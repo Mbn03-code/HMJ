@@ -6,6 +6,8 @@ import MainClasses.Room;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class RoomDB {
@@ -218,49 +220,39 @@ public class RoomDB {
         }
     }
 
-    public static Room availableRoom() {
+    public static ArrayList<Room> getAvailableRooms() {
+        ArrayList<Room> availableRooms = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            // Establish database connection
             conn = DatabaseConnection.getConnection();
-
-            // SQL query to find the first available room
-            String query = "SELECT * FROM rooms WHERE isOccupied = 0";
+            String query = "SELECT roomId, type, isOccupied FROM rooms WHERE isOccupied = 0";
             ps = conn.prepareStatement(query);
-
-            // Execute the query
             rs = ps.executeQuery();
 
-            // Check if a result is found
-            if (rs.next()) {
-                String roomId = rs.getString("roomId");
+            while (rs.next()) {
+                String roomId = rs.getString("roomId"); // Use String for roomId
                 String type = rs.getString("type");
                 boolean isOccupied = rs.getBoolean("isOccupied");
-
-                // Create and return the Room object
-                return new Room(roomId, type, isOccupied);
-            } else {
-                // No available room found
-                return null;
+                Room room = new Room(roomId, type, isOccupied);
+                availableRooms.add(room);
             }
         } catch (SQLException e) {
-            // Log the error message
-            ReportFile.logMessage("Error finding an available room: " + e.getMessage());
-            return null;
+            e.printStackTrace();
         } finally {
-            // Close resources
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
                 if (conn != null) conn.close();
             } catch (SQLException e) {
-                ReportFile.logMessage("Error closing resources: " + e.getMessage());
+                e.printStackTrace();
             }
         }
+        return availableRooms;
     }
+
 
 
 }

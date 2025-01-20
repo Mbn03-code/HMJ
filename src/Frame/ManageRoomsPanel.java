@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class ManageRoomsPanel {
     private JPanel mainPanel;
@@ -452,36 +453,42 @@ public class ManageRoomsPanel {
 
     private JPanel createAvailableRoomPanel() {
         JPanel availableRoomPanel = new JPanel(new BorderLayout());
-        availableRoomPanel.setBackground(Color.LIGHT_GRAY); // پس‌زمینه روشن
+        availableRoomPanel.setBackground(Color.LIGHT_GRAY); // Background color
 
-        JLabel label = new JLabel("Check Available Room");
-        label.setFont(new Font("Arial", Font.BOLD, 16)); // تغییر فونت
-        label.setForeground(Color.BLUE); // رنگ متن
+        // Title
+        JLabel label = new JLabel("Check Available Rooms", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 16)); // Font style
+        label.setForeground(Color.BLUE); // Font color
+        label.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Padding
         availableRoomPanel.add(label, BorderLayout.NORTH);
 
-        // Display area for the room details
-        JTextArea roomDetailsArea = new JTextArea(5, 30);
+        // Display area for room details
+        JTextArea roomDetailsArea = new JTextArea(10, 30);
         roomDetailsArea.setEditable(false);
-        roomDetailsArea.setBackground(Color.WHITE); // رنگ پس‌زمینه
-        roomDetailsArea.setForeground(Color.BLACK); // رنگ متن
-        roomDetailsArea.setFont(new Font("Arial", Font.PLAIN, 14)); // تغییر فونت
+        roomDetailsArea.setBackground(Color.WHITE);
+        roomDetailsArea.setForeground(Color.BLACK);
+        roomDetailsArea.setFont(new Font("Arial", Font.PLAIN, 14));
         availableRoomPanel.add(new JScrollPane(roomDetailsArea), BorderLayout.CENTER);
 
-        // Button to fetch an available room
-        JButton checkRoomButton = new JButton("Find Available Room");
-        checkRoomButton.setBackground(Color.GREEN); // رنگ پس‌زمینه دکمه
-        checkRoomButton.setForeground(Color.WHITE); // رنگ متن دکمه
-        checkRoomButton.setFont(new Font("Arial", Font.BOLD, 14)); // تغییر فونت دکمه
+        // Button to fetch available rooms
+        JButton checkRoomButton = new JButton("Find Available Rooms");
+        checkRoomButton.setBackground(Color.GREEN);
+        checkRoomButton.setForeground(Color.WHITE);
+        checkRoomButton.setFont(new Font("Arial", Font.BOLD, 14));
         checkRoomButton.addActionListener(e -> {
-            Room availableRoom = RoomDB.availableRoom();
-            if (availableRoom != null && !availableRoom.isOccupied()) { // بررسی اتاق‌های آزاد
-                String roomDetails = String.format(
-                        "Room ID: %d\nType: %s\nOccupied: %s",
-                        availableRoom.getRoomID(),
-                        availableRoom.getType(),
-                        availableRoom.isOccupied() ? "Yes" : "No"
-                );
-                roomDetailsArea.setText(roomDetails);
+            // Fetch all available rooms
+            ArrayList <Room>availableRooms = RoomDB.getAvailableRooms();
+            if (!availableRooms.isEmpty()) {
+                StringBuilder roomDetails = new StringBuilder("Available Rooms:\n");
+                for (Room room : availableRooms) {
+                    roomDetails.append(String.format(
+                            "Room ID: %s | Type: %s | Occupied: %s\n",
+                            room.getRoomID() != null ? room.getRoomID() : "N/A", // Room ID
+                            room.getType() != null ? room.getType() : "N/A",     // Room Type
+                            room.isOccupied() ? "Yes" : "No"                   // Occupied Status
+                    ));
+                }
+                roomDetailsArea.setText(roomDetails.toString());
             } else {
                 roomDetailsArea.setText("No available rooms at the moment.");
             }
@@ -489,20 +496,20 @@ public class ManageRoomsPanel {
 
         // Back to menu button
         JButton backButton = new JButton("Back to Menu");
-        backButton.setBackground(Color.RED); // رنگ پس‌زمینه دکمه
-        backButton.setForeground(Color.WHITE); // رنگ متن دکمه
-        backButton.setFont(new Font("Arial", Font.BOLD, 14)); // تغییر فونت دکمه
+        backButton.setBackground(Color.RED);
+        backButton.setForeground(Color.WHITE);
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.addActionListener(e -> cardLayout.show(cardContainer, "Menu"));
 
         // Button panel
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridBagLayout()); // استفاده از GridBagLayout برای وسط قرار دادن دکمه‌ها
-        buttonPanel.setBackground(Color.LIGHT_GRAY); // پس‌زمینه پنل دکمه‌ها
+        buttonPanel.setLayout(new GridBagLayout());
+        buttonPanel.setBackground(Color.LIGHT_GRAY);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.insets = new Insets(10, 10, 10, 10); // فاصله‌ها
+        gbc.insets = new Insets(10, 10, 10, 10); // Padding for buttons
         buttonPanel.add(checkRoomButton, gbc);
 
         gbc.gridy = 1;
@@ -512,5 +519,6 @@ public class ManageRoomsPanel {
 
         return availableRoomPanel;
     }
+
 
 }
