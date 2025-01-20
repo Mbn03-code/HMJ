@@ -10,7 +10,6 @@ import java.util.List;
 
 public class StaffDB {
 
-    // متد برای افزودن کارکن به جدول staff
     public static void addStaff(Staff staff) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -18,13 +17,11 @@ public class StaffDB {
         try {
             connection = DatabaseConnection.getConnection();
 
-            // دستور SQL برای افزودن کارکن
             String sql = "INSERT INTO staff (nationalID, name, lastName, age, gender, phone, position, salary) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             statement = connection.prepareStatement(sql);
 
-            // تعیین مقادیر برای پارامترهای دستور SQL
             statement.setString(1, staff.getNationalID());
             statement.setString(2, staff.getName());
             statement.setString(3, staff.getLastName());
@@ -34,14 +31,12 @@ public class StaffDB {
             statement.setString(7, staff.getPosition());
             statement.setString(8, staff.getSalary());
 
-            // اجرای دستور
             statement.executeUpdate();
             ReportFile.logMessage("Staff added successfully.");
 
         } catch (SQLException e) {
             ReportFile.logMessage(e.getMessage());
         } finally {
-            // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
@@ -51,7 +46,6 @@ public class StaffDB {
         }
     }
 
-    // متد برای حذف کارکن از جدول staff
     public static void removeStaff(String nationalID) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -59,12 +53,10 @@ public class StaffDB {
         try {
             connection = DatabaseConnection.getConnection();
 
-            // دستور SQL برای حذف کارکن
             String sql = "DELETE FROM staff WHERE nationalID = ?";
             statement = connection.prepareStatement(sql);
             statement.setString(1, nationalID);
 
-            // اجرای دستور حذف
             int affectedRows = statement.executeUpdate();
 
             if (affectedRows > 0) {
@@ -76,7 +68,6 @@ public class StaffDB {
         } catch (SQLException e) {
             ReportFile.logMessage(e.getMessage());
         } finally {
-            // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
@@ -87,7 +78,6 @@ public class StaffDB {
         }
     }
 
-    // متد برای به‌روزرسانی اطلاعات کارکن
     public static void updateStaffDetails(String nationalID, String name, String lastName, String age, String gender, String phone, String position, String salary) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -95,7 +85,6 @@ public class StaffDB {
         try {
             connection = DatabaseConnection.getConnection();
 
-            // ساخت دستور SQL پویا برای به‌روزرسانی فیلدهای مشخص
             StringBuilder sql = new StringBuilder("UPDATE staff SET ");
             boolean isFirst = true;
 
@@ -137,7 +126,6 @@ public class StaffDB {
 
             statement = connection.prepareStatement(sql.toString());
 
-            // مقداردهی به پارامترها
             int paramIndex = 1;
             if (name != null) statement.setString(paramIndex++, name);
             if (lastName != null) statement.setString(paramIndex++, lastName);
@@ -148,7 +136,6 @@ public class StaffDB {
             if (salary != null) statement.setString(paramIndex++, salary);
             statement.setString(paramIndex, nationalID);
 
-            // اجرای دستور
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated > 0) {
                 ReportFile.logMessage("Staff details updated successfully.");
@@ -160,7 +147,6 @@ public class StaffDB {
             ReportFile.logMessage(e.getMessage());
 
         } finally {
-            // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
@@ -171,7 +157,6 @@ public class StaffDB {
         }
     }
 
-    // متد برای خواندن اطلاعات تمام کارکنان
     public static void readAllStaff(DefaultTableModel tableModel) {
         Connection conn = null;
         PreparedStatement ps = null;

@@ -17,27 +17,21 @@ public class RoomDB {
         PreparedStatement statement = null;
 
         try {
-            // اتصال به پایگاه داده
             connection = DatabaseConnection.getConnection();
 
-            // دستور SQL برای درج یک اتاق (بدون نیاز به مقدار roomId)
             String sql = "INSERT INTO rooms (Type, isOccupied) VALUES (?, ?)";
 
-            // آماده‌سازی statement
             statement = connection.prepareStatement(sql);
 
-            // تعیین مقادیر برای پارامترهای دستور SQL
             statement.setString(1, room.getType()); // نوع اتاق
             statement.setBoolean(2, room.isOccupied()); // وضعیت اشغال بودن
 
-            // اجرای دستور
             statement.executeUpdate();
             ReportFile.logMessage("Room added successfully.");
 
         } catch (SQLException e) {
             ReportFile.logMessage(e.getMessage());
         } finally {
-            // بستن منابع
             try {
                 if (statement != null) {
                     statement.close();
@@ -62,10 +56,8 @@ public class RoomDB {
         ResultSet resultSet = null;
 
         try {
-            // اتصال به پایگاه داده
             connection = DatabaseConnection.getConnection();
 
-            // 1. پیدا کردن نوع اتاق با استفاده از roomId
             String findRoomSQL = "SELECT type FROM rooms WHERE roomId = ?";
             findRoomStatement = connection.prepareStatement(findRoomSQL);
             findRoomStatement.setInt(1, roomId);
@@ -74,17 +66,14 @@ public class RoomDB {
             if (resultSet.next()) {
                 String roomType = resultSet.getString("type");
 
-                // 2. پیدا کردن بیمار مربوطه که این اتاق را رزرو کرده است
                 String findPatientSQL = "SELECT nationalID FROM patients WHERE roomId = ?";
                 findPatientStatement = connection.prepareStatement(findPatientSQL);
                 findPatientStatement.setInt(1, roomId);
                 resultSet = findPatientStatement.executeQuery();
 
                 if (resultSet.next()) {
-                    // بیمار پیدا شد
                     String nationalID = resultSet.getString("nationalID");
 
-                    // 3. پیدا کردن اتاق خالی با همان نوع
                     String findAvailableRoomSQL = "SELECT roomId FROM rooms WHERE type = ? AND isOccupied = false LIMIT 1";
                     findAvailableRoomStatement = connection.prepareStatement(findAvailableRoomSQL);
                     findAvailableRoomStatement.setString(1, roomType);
@@ -93,13 +82,11 @@ public class RoomDB {
                     if (availableRoomResult.next()) {
                         int availableRoomId = availableRoomResult.getInt("roomId");
 
-                        // بروزرسانی وضعیت اتاق جدید به اشغال
                         String updateRoomSQL = "UPDATE rooms SET isOccupied = true WHERE roomId = ?";
                         updateRoomStatement = connection.prepareStatement(updateRoomSQL);
                         updateRoomStatement.setInt(1, availableRoomId);
                         updateRoomStatement.executeUpdate();
 
-                        // بروزرسانی بیمار به اتاق جدید
                         String updatePatientSQL = "UPDATE patients SET roomId = ? WHERE nationalID = ?";
                         PreparedStatement updatePatientStatement = connection.prepareStatement(updatePatientSQL);
                         updatePatientStatement.setInt(1, availableRoomId);
@@ -108,7 +95,6 @@ public class RoomDB {
 
                         ReportFile.logMessage("Room reassigned successfully for patient.");
                     } else {
-                        // اتاق خالی پیدا نشد، بیمار از جدول حذف می‌شود
                         String deletePatientSQL = "DELETE FROM patients WHERE nationalID = ?";
                         deletePatientStatement = connection.prepareStatement(deletePatientSQL);
                         deletePatientStatement.setString(1, nationalID);
@@ -118,7 +104,6 @@ public class RoomDB {
                     }
                 }
 
-                // 4. حذف اتاق
                 String deleteRoomSQL = "DELETE FROM rooms WHERE roomId = ?";
                 deleteRoomStatement = connection.prepareStatement(deleteRoomSQL);
                 deleteRoomStatement.setInt(1, roomId);
@@ -132,7 +117,6 @@ public class RoomDB {
         } catch (SQLException e) {
             ReportFile.logMessage(e.getMessage());
         } finally {
-            // بستن منابع
             try {
                 if (resultSet != null) resultSet.close();
                 if (findRoomStatement != null) findRoomStatement.close();
@@ -152,20 +136,15 @@ public class RoomDB {
         PreparedStatement statement = null;
 
         try {
-            // اتصال به پایگاه داده
             connection = DatabaseConnection.getConnection();
 
-            // دستور SQL برای به‌روزرسانی نوع اتاق
             String sql = "UPDATE rooms SET type = ? WHERE roomId = ?";
 
-            // آماده‌سازی statement
             statement = connection.prepareStatement(sql);
 
-            // مقداردهی به پارامترهای دستور
-            statement.setString(1, newType); // نوع جدید
-            statement.setInt(2, roomId);    // شناسه اتاق
+            statement.setString(1, newType);
+            statement.setInt(2, roomId);
 
-            // اجرای دستور
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated > 0) {
                 ReportFile.logMessage("Room type updated successfully.");
@@ -176,7 +155,6 @@ public class RoomDB {
         } catch (SQLException e) {
             ReportFile.logMessage(e.getMessage());
         } finally {
-            // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();

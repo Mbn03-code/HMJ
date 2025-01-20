@@ -9,7 +9,6 @@ import java.util.Arrays;
 
 public class PatientDB {
 
-    // متد برای افزودن بیمار به جدول patients
     public static void addPatient(Patient patient, String roomType) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -19,36 +18,28 @@ public class PatientDB {
         try {
             connection = DatabaseConnection.getConnection();
 
-            // درخواست اتاق خالی با نوع مشخص شده از کاربر
             String roomSql = "SELECT roomId FROM rooms WHERE isOccupied = false AND type = ? LIMIT 1";
             roomStatement = connection.prepareStatement(roomSql);
             roomStatement.setString(1, roomType);  // استفاده از نوع اتاق
             resultSet = roomStatement.executeQuery();
 
             if (resultSet.next()) {
-                // اتاق خالی پیدا شد
                 String roomId = resultSet.getString("roomId");
 
-                // به روز رسانی وضعیت اتاق برای اینکه دیگر در دسترس نباشد
                 String updateRoomSql = "UPDATE rooms SET isOccupied = true WHERE roomId = ?";
                 statement = connection.prepareStatement(updateRoomSql);
                 statement.setString(1, roomId);
                 statement.executeUpdate();
 
-                // اختصاص اتاق به بیمار
                 Room room = new Room(roomId, roomType, true);
                 patient.setRoom(room);
-                patient.getRoom().setRoomID(roomId);  // اختصاص شناسه اتاق به بیمار
-                patient.getRoom().setOccupied(true);  // بروزرسانی وضعیت isOccupied در شیء Room
-
-                // دستور SQL برای اضافه کردن بیمار به جدول patients
+                patient.getRoom().setRoomID(roomId);
+                patient.getRoom().setOccupied(true);
                 String sql = "INSERT INTO patients (nationalID, name, lastName, age, gender, phone, roomId, admissionDate, dischargeDate) "
                         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-                // آماده‌سازی statement
                 statement = connection.prepareStatement(sql);
 
-                // تعیین مقادیر برای پارامترهای دستور SQL
                 statement.setString(1, patient.getNationalID());
                 statement.setString(2, patient.getName());
                 statement.setString(3, patient.getLastName());
@@ -59,19 +50,17 @@ public class PatientDB {
                 statement.setString(8,patient.getAdmissionDate());
                 statement.setString(9, patient.getDischargeDate());
 
-                // اجرای دستور
                 statement.executeUpdate();
                 ReportFile.logMessage("Patient added successfully.");
 
             } else {
                 ReportFile.logMessage("No available rooms with the selected type.");
-                return; // اگر هیچ اتاق خالی نباشد، عملیات را متوقف می‌کنیم
+                return;
             }
 
         } catch (SQLException e) {
             ReportFile.logMessage(e.getMessage());
         } finally {
-            // بستن منابع
             try {
                 if (resultSet != null) resultSet.close();
                 if (roomStatement != null) roomStatement.close();
@@ -88,25 +77,20 @@ public class PatientDB {
         PreparedStatement updateRoomStatement = null;
 
         try {
-            // اتصال به پایگاه داده
             connection = DatabaseConnection.getConnection();
 
-            // دستور SQL برای حذف بیمار از جدول
             String deletePatientSQL = "DELETE FROM patients WHERE nationalID = ?";
             deletePatientStatement = connection.prepareStatement(deletePatientSQL);
             deletePatientStatement.setString(1, nationalID);
 
-            // اجرای دستور حذف
             int affectedRows = deletePatientStatement.executeUpdate();
 
             if (affectedRows > 0) {
                 ReportFile.logMessage("Patient removed successfully.");
 
-                // دستور SQL برای به‌روزرسانی وضعیت اتاق
                 String updateRoomSQL = "UPDATE rooms SET isOccupied = 0 WHERE RoomID NOT IN (SELECT roomId FROM patients)";
                 updateRoomStatement = connection.prepareStatement(updateRoomSQL);
 
-                // اجرای دستور به‌روزرسانی
                 updateRoomStatement.executeUpdate();
                 ReportFile.logMessage("Room status updated successfully.");
             } else {
@@ -117,7 +101,6 @@ public class PatientDB {
             ReportFile.logMessage(e.getMessage());
 
         } finally {
-            // بستن منابع
             try {
                 if (deletePatientStatement != null) deletePatientStatement.close();
                 if (updateRoomStatement != null) updateRoomStatement.close();
@@ -132,10 +115,8 @@ public class PatientDB {
         PreparedStatement statement = null;
 
         try {
-            // اتصال به پایگاه داده
             connection = DatabaseConnection.getConnection();
 
-            // ساخت دستور SQL پویا برای به‌روزرسانی فیلدهای مشخص
             StringBuilder sql = new StringBuilder("UPDATE patients SET ");
             boolean isFirst = true;
 
@@ -166,10 +147,8 @@ public class PatientDB {
 
             sql.append(" WHERE nationalID = ?");
 
-            // آماده‌سازی statement
             statement = connection.prepareStatement(sql.toString());
 
-            // مقداردهی به پارامترها
             int paramIndex = 1;
             if (name != null) statement.setString(paramIndex++, name);
             if (lastName != null) statement.setString(paramIndex++, lastName);
@@ -178,7 +157,6 @@ public class PatientDB {
             if (phone != null) statement.setString(paramIndex++, phone);
             statement.setString(paramIndex, nationalID);
 
-            // اجرای دستور
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated > 0) {
                 ReportFile.logMessage("Patient details updated successfully.");
@@ -190,7 +168,6 @@ public class PatientDB {
             ReportFile.logMessage(e.getMessage());
 
         } finally {
-            // بستن منابع
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
